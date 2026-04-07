@@ -21,6 +21,7 @@ import {
   resolveOverridePath,
   USAGE
 } from "./cli-shared";
+import { buildGitHookSnippet, installGitHook } from "./git-hooks";
 import { runWrappedCommand } from "./run-command";
 import { buildPowerShellHookSnippet, installPowerShellHook } from "./shell-hooks";
 
@@ -115,18 +116,31 @@ async function handleOverride(target: string | null, args: string[]) {
 }
 
 async function handleHook(target: string | null, args: string[]) {
-  if (target !== "powershell") {
-    throw new Error("Solo se soporta powershell en este slice");
-  }
+  if (target === "powershell") {
+    if (args.includes("--install")) {
+      const profilePath = getArg("--profile", args);
+      const result = await installPowerShellHook(profilePath);
+      console.log(result.created ? `Hook PowerShell instalado en ${result.path}` : `Hook PowerShell ya presente en ${result.path}`);
+      return;
+    }
 
-  if (args.includes("--install")) {
-    const profilePath = getArg("--profile", args);
-    const result = await installPowerShellHook(profilePath);
-    console.log(result.created ? `Hook PowerShell instalado en ${result.path}` : `Hook PowerShell ya presente en ${result.path}`);
+    console.log(buildPowerShellHookSnippet());
     return;
   }
 
-  console.log(buildPowerShellHookSnippet());
+  if (target === "git") {
+    if (args.includes("--install")) {
+      const hookPath = getArg("--path", args);
+      const result = await installGitHook(hookPath);
+      console.log(result.created ? `Hook Git instalado en ${result.path}` : `Hook Git ya presente en ${result.path}`);
+      return;
+    }
+
+    console.log(buildGitHookSnippet());
+    return;
+  }
+
+  throw new Error("Solo se soporta powershell o git en este slice");
 }
 
 export async function runCli(argv: string[]) {
