@@ -1,4 +1,4 @@
-export { codexAdapter, cursorAdapter, getAdapter, listAdapters, renderAdapter, stdoutAdapter } from "./adapters";
+export { claudeAdapter, codexAdapter, cursorAdapter, getAdapter, listAdapters, renderAdapter, stdoutAdapter } from "./adapters";
 export { initialDna, initialDnaDocument } from "./schema";
 export { applyDnaIgnore, mergeDnaDocuments, parseDnaIgnore, parseOverrideDocument } from "./overrides";
 export { resolveDna } from "./resolver";

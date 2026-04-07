@@ -4,7 +4,7 @@ import { codexAdapter } from "../../adapter-codex/src/index";
 import { cursorAdapter } from "../../adapter-cursor/src/index";
 import { stdoutAdapter } from "../../adapter-stdout/src/index";
 
-export { codexAdapter, cursorAdapter, stdoutAdapter };
+export { claudeAdapter, codexAdapter, cursorAdapter, stdoutAdapter };
 
 const registry: Record<DnaAdapterName, DnaAdapter> = {
   stdout: stdoutAdapter,

@@ -12,7 +12,9 @@ describe("adapters", () => {
   });
 
   it("renderiza claude desde package dedicado", () => {
-    expect(renderAdapter("claude", initialDnaDocument, initialDna)).toContain("claude_memory:");
+    const output = renderAdapter("claude", initialDnaDocument, initialDna);
+    expect(output).toContain("# Claude System Prompt");
+    expect(output).toContain("## Never");
   });
 
   it("renderiza stdout como documento canonico yaml", () => {
