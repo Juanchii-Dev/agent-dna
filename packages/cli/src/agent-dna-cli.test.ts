@@ -96,4 +96,20 @@ describe("agent-dna-cli", () => {
     const output = await fs.readFile(outPath, "utf8");
     expect(output).toBe("codex|Pulse");
   });
+
+  it("muestra diff entre DNA base y override", async () => {
+    const tempHome = join(tmpdir(), `agent-dna-home-${Date.now()}-diff`);
+    const dnaHome = join(tempHome, ".agent-dna");
+    const overridesDir = join(dnaHome, "overrides");
+    const dnaPath = join(dnaHome, "dna.yaml");
+    await fs.mkdir(overridesDir, { recursive: true });
+    await fs.writeFile(dnaPath, await fs.readFile(fixturePath, "utf8"), "utf8");
+    await fs.writeFile(join(overridesDir, "pulse.yaml"), "identity:\n  role: Override role\n", "utf8");
+    process.env.HOME = tempHome;
+    process.env.USERPROFILE = tempHome;
+
+    await runCli(["diff", dnaPath, "pulse"]);
+
+    expect(logSpy).toHaveBeenLastCalledWith(expect.stringContaining("identity.role"));
+  });
 });

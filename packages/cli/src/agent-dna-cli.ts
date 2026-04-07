@@ -21,6 +21,7 @@ import {
   resolveOverridePath,
   USAGE
 } from "./cli-shared";
+import { buildDiffOutput } from "./diff-command";
 import { buildGitHookSnippet, installGitHook } from "./git-hooks";
 import { runWrappedCommand } from "./run-command";
 import { buildPowerShellHookSnippet, installPowerShellHook } from "./shell-hooks";
@@ -28,6 +29,7 @@ import { buildPowerShellHookSnippet, installPowerShellHook } from "./shell-hooks
 type Command =
   | "export"
   | "export-agents"
+  | "diff"
   | "help"
   | "hook"
   | "init"
@@ -84,6 +86,11 @@ async function handleExport(filePath: string, args: string[]) {
   const format = getFormat(args);
   const output = format === "json" ? buildDocumentJson(document) : buildDocumentYaml(document);
   await writeOutput(outPath, output, "DNA exportado en");
+}
+
+async function handleDiff(left: string | null, args: string[]) {
+  const right = args[0] && !args[0].startsWith("--") ? args[0] : null;
+  console.log(await buildDiffOutput(left, right));
 }
 
 async function handleInject(filePath: string, args: string[]) {
@@ -156,6 +163,11 @@ export async function runCli(argv: string[]) {
 
   if (command === "init") {
     await handleInit(rawFile ? [rawFile, ...rest] : rest);
+    return 0;
+  }
+
+  if (command === "diff") {
+    await handleDiff(rawFile, rest);
     return 0;
   }
 

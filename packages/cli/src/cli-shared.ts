@@ -13,7 +13,7 @@ import type { AgentDnaDocument, DnaAdapterName } from "../../core/src/index";
 export const SUPPORTED_FORMATS = ["yaml", "json"] as const;
 export const SUPPORTED_TOOLS = ["stdout", "codex", "cursor", "claude"] as const;
 export const USAGE =
-  "Uso: npm run cli -- <init|show|override|validate|export|inject|run|resolve|export-agents> [archivo|override|comando] [--format yaml|json] [--out ruta] [--override ruta] [--tool codex|cursor|claude|stdout] [--dnaignore ruta] [--field ruta.dot] [--dna ruta]";
+  "Uso: npm run cli -- <init|show|diff|override|validate|export|inject|run|resolve|export-agents> [archivo|override|comando] [--format yaml|json] [--out ruta] [--override ruta] [--tool codex|cursor|claude|stdout] [--dnaignore ruta] [--field ruta.dot] [--dna ruta]";
 
 export function getArg(flag: string, args: string[]) {
   const index = args.indexOf(flag);
