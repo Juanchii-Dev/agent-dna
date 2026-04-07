@@ -103,21 +103,41 @@ npm run build
 
 ## 🛠️ CLI
 
+Default local-first flow:
+
+```powershell
+npm run cli -- init
+npm run cli -- validate
+npm run cli -- show --field identity
+```
+
+That path resolves to:
+
+```text
+~/.agent-dna/dna.yaml
+~/.agent-dna/overrides/
+~/.agent-dna/active-override
+```
+
 Create a starter DNA:
 
 ```powershell
+npm run cli -- init
 npm run cli -- init --out .\.agent-dna\dna.yaml
 ```
 
 Validate a DNA file:
 
 ```powershell
+npm run cli -- validate
 npm run cli -- validate .\examples\agent-dna.yaml
 ```
 
 Show a full document or one field:
 
 ```powershell
+npm run cli -- show
+npm run cli -- show --field identity --format json
 npm run cli -- show .\examples\agent-dna.yaml
 npm run cli -- show .\examples\agent-dna.yaml --field rules --format json
 ```
@@ -140,6 +160,9 @@ npm run cli -- inject .\examples\agent-dna.yaml --tool claude
 Use a real override file:
 
 ```powershell
+npm run cli -- override pulse-enterprise
+npm run cli -- show
+npm run cli -- override --clear
 npm run cli -- export .\examples\agent-dna.yaml --override .\examples\overrides\pulse-enterprise.yaml --format yaml
 ```
 
@@ -160,7 +183,7 @@ npm run cli -- inject .\examples\agent-dna.yaml --tool codex
 - `examples/overrides/pulse-enterprise.yaml`
 - `examples/.dnaignore`
 
-These files are enough to test the parser, adapters, CLI, and demo without creating custom fixtures.
+These files are enough to test the parser, adapters, CLI, and demo without creating custom fixtures. The real default runtime flow still targets `~/.agent-dna/dna.yaml`.
 
 ## 🧭 Design principles
 
