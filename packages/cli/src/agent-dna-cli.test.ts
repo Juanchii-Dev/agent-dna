@@ -73,4 +73,27 @@ describe("agent-dna-cli", () => {
 
     expect(logSpy).toHaveBeenLastCalledWith('"Fullstack Founder"');
   });
+
+  it("ejecuta dna run con el DNA inyectado en variables de entorno", async () => {
+    const tempHome = join(tmpdir(), `agent-dna-home-${Date.now()}-run`);
+    const dnaHome = join(tempHome, ".agent-dna");
+    await fs.mkdir(dnaHome, { recursive: true });
+    await fs.writeFile(join(dnaHome, "dna.yaml"), await fs.readFile(fixturePath, "utf8"), "utf8");
+    process.env.HOME = tempHome;
+    process.env.USERPROFILE = tempHome;
+
+    const outPath = join(tmpdir(), `agent-dna-run-${Date.now()}.txt`);
+    await runCli([
+      "run",
+      "--tool",
+      "codex",
+      "--",
+      "node",
+      "-e",
+      `require('node:fs').writeFileSync(${JSON.stringify(outPath)}, process.env.AGENT_DNA_TOOL + '|' + process.env.AGENT_DNA_PROJECT)`
+    ]);
+
+    const output = await fs.readFile(outPath, "utf8");
+    expect(output).toBe("codex|Pulse");
+  });
 });

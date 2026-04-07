@@ -21,6 +21,7 @@ import {
   resolveOverridePath,
   USAGE
 } from "./cli-shared";
+import { runWrappedCommand } from "./run-command";
 
 type Command =
   | "export"
@@ -29,6 +30,7 @@ type Command =
   | "init"
   | "inject"
   | "override"
+  | "run"
   | "resolve"
   | "show"
   | "validate";
@@ -128,6 +130,11 @@ export async function runCli(argv: string[]) {
 
   if (command === "override") {
     await handleOverride(rawFile, rest);
+    return 0;
+  }
+
+  if (command === "run") {
+    await runWrappedCommand({ args: inputArgs });
     return 0;
   }
 
