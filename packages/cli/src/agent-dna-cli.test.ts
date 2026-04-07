@@ -10,9 +10,13 @@ const fixturePath = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..",
 describe("agent-dna-cli", () => {
   const logSpy = vi.spyOn(console, "log").mockImplementation(() => undefined);
   const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+  const originalHome = process.env.HOME;
+  const originalUserProfile = process.env.USERPROFILE;
   beforeEach(() => {
     logSpy.mockClear();
     errorSpy.mockClear();
+    process.env.HOME = originalHome;
+    process.env.USERPROFILE = originalUserProfile;
   });
 
   it("soporta campo anidado en show", async () => {
@@ -35,5 +39,38 @@ describe("agent-dna-cli", () => {
     await expect(runCli(["show", fixturePath, "--field", "identity.unknown"])).rejects.toThrow(
       "Campo no encontrado: identity.unknown"
     );
+  });
+
+  it("activa override por nombre y lo aplica al DNA global", async () => {
+    const tempHome = join(tmpdir(), `agent-dna-home-${Date.now()}`);
+    const dnaHome = join(tempHome, ".agent-dna");
+    const overridesDir = join(dnaHome, "overrides");
+    await fs.mkdir(overridesDir, { recursive: true });
+    await fs.writeFile(join(dnaHome, "dna.yaml"), await fs.readFile(fixturePath, "utf8"), "utf8");
+    await fs.writeFile(join(overridesDir, "pulse.yaml"), "identity:\n  role: Override role\n", "utf8");
+    process.env.HOME = tempHome;
+    process.env.USERPROFILE = tempHome;
+
+    await runCli(["override", "pulse"]);
+    await runCli(["show", "--field", "identity.role", "--format", "json"]);
+
+    expect(logSpy).toHaveBeenLastCalledWith('"Override role"');
+  });
+
+  it("limpia el override activo", async () => {
+    const tempHome = join(tmpdir(), `agent-dna-home-${Date.now()}-clear`);
+    const dnaHome = join(tempHome, ".agent-dna");
+    const overridesDir = join(dnaHome, "overrides");
+    await fs.mkdir(overridesDir, { recursive: true });
+    await fs.writeFile(join(dnaHome, "dna.yaml"), await fs.readFile(fixturePath, "utf8"), "utf8");
+    await fs.writeFile(join(overridesDir, "pulse.yaml"), "identity:\n  role: Override role\n", "utf8");
+    process.env.HOME = tempHome;
+    process.env.USERPROFILE = tempHome;
+
+    await runCli(["override", "pulse"]);
+    await runCli(["override", "--clear"]);
+    await runCli(["show", "--field", "identity.role", "--format", "json"]);
+
+    expect(logSpy).toHaveBeenLastCalledWith('"Fullstack Founder"');
   });
 });

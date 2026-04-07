@@ -1,21 +1,26 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import YAML from "yaml";
 import {
-  applyDnaIgnore,
   buildDocumentJson,
   buildDocumentYaml,
   getAdapter,
   initialDnaDocument,
   mapDocumentToState,
-  mergeDnaDocuments,
-  parseDnaIgnore,
-  parseImportedDocument,
-  parseOverrideDocument,
-  renderAdapter
 } from "../../core/src/index";
 import type { DnaAdapterName } from "../../core/src/index";
+import {
+  getActiveOverridePath,
+  getArg,
+  getFieldValue,
+  getFormat,
+  getTool,
+  loadResolvedDocument,
+  resolveBaseDnaPath,
+  resolveOverridePath,
+  USAGE
+} from "./cli-shared";
 
 type Command =
   | "export"
@@ -23,94 +28,10 @@ type Command =
   | "help"
   | "init"
   | "inject"
+  | "override"
   | "resolve"
   | "show"
   | "validate";
-
-const SUPPORTED_FORMATS = ["yaml", "json"] as const;
-const SUPPORTED_TOOLS = ["stdout", "codex", "cursor", "claude"] as const;
-const USAGE =
-  "Uso: npm run cli -- <init|show|validate|export|inject|resolve|export-agents> [archivo] [--format yaml|json] [--out ruta] [--override ruta] [--tool codex|cursor|claude|stdout] [--dnaignore ruta] [--field ruta.dot]";
-
-function getArg(flag: string, args: string[]) {
-  const index = args.indexOf(flag);
-  return index === -1 ? null : args[index + 1] ?? null;
-}
-
-function getFormat(args: string[]) {
-  const format = (getArg("--format", args) ?? "yaml") as (typeof SUPPORTED_FORMATS)[number];
-  if (!SUPPORTED_FORMATS.includes(format)) {
-    throw new Error(`Formato no soportado: ${format}`);
-  }
-  return format;
-}
-
-function getTool(args: string[], fallback: DnaAdapterName = "stdout") {
-  const tool = (getArg("--tool", args) ?? fallback) as DnaAdapterName;
-  if (!SUPPORTED_TOOLS.includes(tool)) {
-    throw new Error(`Tool no soportado: ${tool}`);
-  }
-  return tool;
-}
-
-function getFieldValue(document: Record<string, unknown>, field: string | null) {
-  if (!field) {
-    return document;
-  }
-
-  const value = field.split(".").reduce<unknown>((current, segment) => {
-    if (!current || typeof current !== "object" || !(segment in current)) {
-      throw new Error(`Campo no encontrado: ${field}`);
-    }
-    return (current as Record<string, unknown>)[segment];
-  }, document);
-
-  return value;
-}
-
-async function readOptionalFile(filePath: string | null) {
-  if (!filePath) {
-    return null;
-  }
-
-  try {
-    return await readFile(resolve(filePath), "utf8");
-  } catch {
-    return null;
-  }
-}
-
-async function resolveDnaIgnorePath(dnaPath: string, args: string[]) {
-  const explicit = getArg("--dnaignore", args);
-  if (explicit) {
-    return resolve(explicit);
-  }
-
-  const sibling = resolve(dirname(dnaPath), ".dnaignore");
-  const siblingContent = await readOptionalFile(sibling);
-  return siblingContent ? sibling : null;
-}
-
-async function loadResolvedDocument(filePath: string, args: string[]) {
-  const absolutePath = resolve(filePath);
-  const baseContent = await readFile(absolutePath, "utf8");
-  const baseDocument = parseImportedDocument(baseContent, absolutePath.toLowerCase());
-
-  const overridePath = getArg("--override", args);
-  const overrideContent = await readOptionalFile(overridePath);
-  const mergedDocument = overrideContent
-    ? mergeDnaDocuments(baseDocument, parseOverrideDocument(overrideContent, resolve(overridePath!).toLowerCase()))
-    : baseDocument;
-
-  const tool = getArg("--tool", args) as DnaAdapterName | null;
-  if (!tool) {
-    return mergedDocument;
-  }
-
-  const dnaIgnorePath = await resolveDnaIgnorePath(absolutePath, args);
-  const dnaIgnoreContent = await readOptionalFile(dnaIgnorePath);
-  return dnaIgnoreContent ? applyDnaIgnore(mergedDocument, tool, parseDnaIgnore(dnaIgnoreContent)) : mergedDocument;
-}
 
 async function writeOutput(outPath: string | null, output: string, successMessage: string) {
   if (!outPath) {
@@ -170,9 +91,30 @@ async function handleInject(filePath: string, args: string[]) {
   await writeOutput(outPath, output, `${tool} exportado en`);
 }
 
+async function handleOverride(target: string | null, args: string[]) {
+  const activeOverridePath = getActiveOverridePath();
+
+  if (target === "--clear" || args.includes("--clear")) {
+    await rm(activeOverridePath, { force: true });
+    console.log("Override activo limpiado");
+    return;
+  }
+
+  if (!target) {
+    throw new Error("Falta override");
+  }
+
+  const overridePath = await resolveOverridePath(target);
+  await mkdir(dirname(activeOverridePath), { recursive: true });
+  await writeFile(activeOverridePath, overridePath, "utf8");
+  console.log(`Override activo: ${overridePath}`);
+}
+
 export async function runCli(argv: string[]) {
-  const [rawCommand, rawFile, ...rest] = argv;
+  const [rawCommand, ...inputArgs] = argv;
   const command = rawCommand as Command | undefined;
+  const rawFile = inputArgs[0] && !inputArgs[0].startsWith("--") ? inputArgs[0] : null;
+  const rest = rawFile ? inputArgs.slice(1) : inputArgs;
 
   if (!command || command === "help" || rest.includes("--help")) {
     console.error(USAGE);
@@ -184,26 +126,29 @@ export async function runCli(argv: string[]) {
     return 0;
   }
 
-  if (!rawFile) {
-    throw new Error("Falta archivo DNA");
+  if (command === "override") {
+    await handleOverride(rawFile, rest);
+    return 0;
   }
+
+  const filePath = await resolveBaseDnaPath(rawFile);
 
   switch (command) {
     case "validate":
-      await handleValidate(rawFile, rest);
+      await handleValidate(filePath, rest);
       break;
     case "show":
-      await handleShow(rawFile, rest);
+      await handleShow(filePath, rest);
       break;
     case "export":
     case "resolve":
-      await handleExport(rawFile, rest);
+      await handleExport(filePath, rest);
       break;
     case "inject":
-      await handleInject(rawFile, rest);
+      await handleInject(filePath, rest);
       break;
     case "export-agents":
-      await handleInject(rawFile, ["--tool", "codex", ...rest]);
+      await handleInject(filePath, ["--tool", "codex", ...rest]);
       break;
     default:
       throw new Error(`Comando no soportado: ${rawCommand}`);
