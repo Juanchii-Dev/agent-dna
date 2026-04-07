@@ -1,6 +1,8 @@
 {
   "name": "@agent-dna/core",
   "version": "0.1.0",
+  "description": "Core parser, schema, resolver and generators for the Agent DNA standard.",
+  "keywords": ["agent-dna", "ai", "cli", "schema", "developer-tools"],
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -16,9 +18,19 @@
     "schema"
   ],
   "license": "MIT",
+  "homepage": "https://github.com/Juanchii-Dev/agent-dna",
+  "bugs": {
+    "url": "https://github.com/Juanchii-Dev/agent-dna/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Juanchii-Dev/agent-dna.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
     "@agent-dna/types": "0.1.0"

@@ -10,12 +10,17 @@
   "scripts": {
     "cli": "npx tsx packages/cli/src/agent-dna-cli.ts",
     "build:packages": "npm run build --workspaces --if-present",
+    "pack:types": "npm pack --dry-run --workspace @agent-dna/types",
+    "pack:core": "npm pack --dry-run --workspace @agent-dna/core",
+    "pack:cli": "npm pack --dry-run --workspace agent-dna",
+    "publish:check": "powershell -Command \"npm run build:packages; npm run pack:types; npm run pack:core; npm run pack:cli\"",
     "dev": "vite --config vite.config.ts",
     "typecheck": "npx tsc -b",
     "build": "npm run build:packages; npx vite build --config vite.config.ts",
     "test": "npx vitest run",
     "preview": "vite preview --config vite.config.ts"
   },
+  "packageManager": "npm@10",
   "dependencies": {
     "ajv": "^8.17.1",
     "react": "^19.1.0",
