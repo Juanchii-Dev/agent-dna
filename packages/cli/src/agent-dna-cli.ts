@@ -22,11 +22,13 @@ import {
   USAGE
 } from "./cli-shared";
 import { runWrappedCommand } from "./run-command";
+import { buildPowerShellHookSnippet, installPowerShellHook } from "./shell-hooks";
 
 type Command =
   | "export"
   | "export-agents"
   | "help"
+  | "hook"
   | "init"
   | "inject"
   | "override"
@@ -112,6 +114,21 @@ async function handleOverride(target: string | null, args: string[]) {
   console.log(`Override activo: ${overridePath}`);
 }
 
+async function handleHook(target: string | null, args: string[]) {
+  if (target !== "powershell") {
+    throw new Error("Solo se soporta powershell en este slice");
+  }
+
+  if (args.includes("--install")) {
+    const profilePath = getArg("--profile", args);
+    const result = await installPowerShellHook(profilePath);
+    console.log(result.created ? `Hook PowerShell instalado en ${result.path}` : `Hook PowerShell ya presente en ${result.path}`);
+    return;
+  }
+
+  console.log(buildPowerShellHookSnippet());
+}
+
 export async function runCli(argv: string[]) {
   const [rawCommand, ...inputArgs] = argv;
   const command = rawCommand as Command | undefined;
@@ -130,6 +147,11 @@ export async function runCli(argv: string[]) {
 
   if (command === "override") {
     await handleOverride(rawFile, rest);
+    return 0;
+  }
+
+  if (command === "hook") {
+    await handleHook(rawFile, rest);
     return 0;
   }
 
