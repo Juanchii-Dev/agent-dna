@@ -1,35 +1,8 @@
-import { buildDocumentYaml } from "./document";
-import { buildAgentsPreview } from "./generators";
 import type { AgentDnaDocument, AgentDnaState, DnaAdapter, DnaAdapterName } from "./types";
 import { claudeAdapter } from "../../adapter-claude/src/index";
-
-function buildCursorAdapterOutput(state: AgentDnaState) {
-  return `cursor_context:
-  active_project: "${state.project}"
-  stack: "${state.stack}"
-  code_rules:
-    - "${state.neverRule}"
-    - "${state.alwaysRule}"
-  policy:
-    secret_policy: "${state.secretPolicy}"`;
-}
-
-export const stdoutAdapter: DnaAdapter = {
-  name: "stdout",
-  render: ({ document }) => buildDocumentYaml(document)
-};
-
-export const codexAdapter: DnaAdapter = {
-  name: "codex",
-  fileName: "AGENTS.md",
-  render: ({ state }) => buildAgentsPreview(state)
-};
-
-export const cursorAdapter: DnaAdapter = {
-  name: "cursor",
-  fileName: ".cursorrules",
-  render: ({ state }) => buildCursorAdapterOutput(state)
-};
+import { codexAdapter } from "../../adapter-codex/src/index";
+import { cursorAdapter } from "../../adapter-cursor/src/index";
+import { stdoutAdapter } from "../../adapter-stdout/src/index";
 
 const registry: Record<DnaAdapterName, DnaAdapter> = {
   stdout: stdoutAdapter,

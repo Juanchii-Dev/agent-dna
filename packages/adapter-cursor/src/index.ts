@@ -1,1 +1,14 @@
-export { cursorAdapter } from "../../core/src/index";
+import type { DnaAdapter } from "../../core/src/types";
+
+export const cursorAdapter: DnaAdapter = {
+  name: "cursor",
+  fileName: ".cursorrules",
+  render: ({ state }) => `cursor_context:
+  active_project: "${state.project}"
+  stack: "${state.stack}"
+  code_rules:
+    - "${state.neverRule}"
+    - "${state.alwaysRule}"
+  policy:
+    secret_policy: "${state.secretPolicy}"`
+};
