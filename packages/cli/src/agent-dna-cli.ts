@@ -165,7 +165,7 @@ async function handleInject(filePath: string, args: string[]) {
   const document = await loadResolvedDocument(filePath, args);
   const state = mapDocumentToState(document);
   const adapter = getAdapter(tool);
-  const output = adapter.render({ document, state });
+  const output = adapter.transform({ document, state });
   const outPath = getArg("--out", args);
   await writeOutput(outPath, output, `${tool} exportado en`);
 }

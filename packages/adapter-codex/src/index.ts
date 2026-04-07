@@ -3,6 +3,8 @@ import type { DnaAdapter } from "../../types/src/index";
 
 export const codexAdapter: DnaAdapter = {
   name: "codex",
+  version: "1.0.0",
   fileName: "AGENTS.md",
-  render: ({ state }) => buildAgentsPreview(state)
+  transform: ({ state }) => buildAgentsPreview(state),
+  inject: async () => undefined
 };

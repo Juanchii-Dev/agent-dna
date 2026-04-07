@@ -3,5 +3,7 @@ import type { DnaAdapter } from "../../types/src/index";
 
 export const stdoutAdapter: DnaAdapter = {
   name: "stdout",
-  render: ({ document }) => buildDocumentYaml(document)
+  version: "1.0.0",
+  transform: ({ document }) => buildDocumentYaml(document),
+  inject: async () => undefined
 };

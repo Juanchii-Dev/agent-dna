@@ -2,8 +2,9 @@ import type { DnaAdapter } from "../../types/src/index";
 
 export const claudeAdapter: DnaAdapter = {
   name: "claude",
+  version: "1.0.0",
   fileName: "claude-system.txt",
-  render: ({ document, state }) => {
+  transform: ({ document, state }) => {
     const primaryStack = document.stack.primary.join(", ");
     const backendStack = document.stack.backend?.join(", ");
     const tools = document.stack.tools?.join(", ");
@@ -46,5 +47,6 @@ export const claudeAdapter: DnaAdapter = {
     ]
       .filter(Boolean)
       .join("\n");
-  }
+  },
+  inject: async () => undefined
 };

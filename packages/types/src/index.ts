@@ -6,10 +6,17 @@ export type DnaIgnoreConfig = Record<string, string[]>;
 
 export type DnaAdapterName = "stdout" | "codex" | "cursor" | "claude";
 
+export type DnaAdapterInput = {
+  document: AgentDnaDocument;
+  state: AgentDnaState;
+};
+
 export type DnaAdapter = {
   name: DnaAdapterName;
+  version: string;
   fileName?: string;
-  render: (input: { document: AgentDnaDocument; state: AgentDnaState }) => string;
+  transform: (input: DnaAdapterInput) => string;
+  inject: (output: string) => Promise<void>;
 };
 
 export type AgentDnaDocument = {

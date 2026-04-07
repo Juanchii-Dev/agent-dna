@@ -18,7 +18,7 @@ export function getAdapter(name: DnaAdapterName) {
 }
 
 export function renderAdapter(name: DnaAdapterName, document: AgentDnaDocument, state: AgentDnaState) {
-  return getAdapter(name).render({ document, state });
+  return getAdapter(name).transform({ document, state });
 }
 
 export function listAdapters() {
