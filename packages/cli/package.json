@@ -1,9 +1,24 @@
 {
-  "name": "agent-dna-cli",
-  "private": true,
-  "version": "0.0.1",
+  "name": "agent-dna",
+  "version": "0.1.0",
   "type": "module",
+  "main": "./dist/agent-dna-cli.js",
   "bin": {
-    "agent-dna": "./src/agent-dna-cli.ts"
+    "agent-dna": "./dist/agent-dna-cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Juanchii-Dev/agent-dna.git"
+  },
+  "dependencies": {
+    "@agent-dna/core": "0.1.0",
+    "yaml": "^2.8.1"
+  },
+  "scripts": {
+    "build": "npx tsup src/agent-dna-cli.ts src/cli-shared.ts src/diff-command.ts src/git-hooks.ts src/run-command.ts src/shell-hooks.ts --format esm --clean --tsconfig ../../tsconfig.app.json"
   }
 }

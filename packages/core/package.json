@@ -1,10 +1,29 @@
 {
   "name": "@agent-dna/core",
-  "private": true,
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
     "./schema": "./schema/agent-dna.schema.json"
+  },
+  "files": [
+    "dist",
+    "schema"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Juanchii-Dev/agent-dna.git"
+  },
+  "dependencies": {
+    "@agent-dna/types": "0.1.0"
+  },
+  "scripts": {
+    "build": "npx tsup src/index.ts --format esm --dts --clean --tsconfig ../../tsconfig.app.json"
   }
 }

@@ -7,8 +7,8 @@ import {
   parseDnaIgnore,
   parseImportedDocument,
   parseOverrideDocument
-} from "../../core/src/index";
-import type { AgentDnaDocument, DnaAdapterName } from "../../core/src/index";
+} from "@agent-dna/core";
+import type { AgentDnaDocument, DnaAdapterName } from "@agent-dna/core";
 
 export const SUPPORTED_FORMATS = ["yaml", "json"] as const;
 export const SUPPORTED_TOOLS = ["stdout", "codex", "cursor", "claude"] as const;

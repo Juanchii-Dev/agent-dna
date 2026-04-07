@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { buildDocumentJson, mapDocumentToState } from "../../core/src/index";
+import { buildDocumentJson, mapDocumentToState } from "@agent-dna/core";
 import { getArg, getTool, loadResolvedDocument, resolveBaseDnaPath } from "./cli-shared";
 
 type RunCommandInput = {

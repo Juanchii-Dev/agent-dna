@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -8,8 +9,8 @@ import {
   getAdapter,
   initialDnaDocument,
   mapDocumentToState,
-} from "../../core/src/index";
-import type { DnaAdapterName } from "../../core/src/index";
+} from "@agent-dna/core";
+import type { DnaAdapterName } from "@agent-dna/core";
 import {
   getActiveOverridePath,
   getArg,

@@ -14,7 +14,11 @@
     "baseUrl": ".",
     "paths": {
       "@agent-dna/core": ["packages/core/src/index.ts"],
-      "@agent-dna/types": ["packages/types/src/index.ts"]
+      "@agent-dna/types": ["packages/types/src/index.ts"],
+      "@agent-dna/adapter-claude": ["packages/adapter-claude/src/index.ts"],
+      "@agent-dna/adapter-codex": ["packages/adapter-codex/src/index.ts"],
+      "@agent-dna/adapter-cursor": ["packages/adapter-cursor/src/index.ts"],
+      "@agent-dna/adapter-stdout": ["packages/adapter-stdout/src/index.ts"]
     },
     "types": ["vitest/globals"],
     "resolveJsonModule": true,
