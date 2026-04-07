@@ -1,0 +1,9 @@
+{
+  "name": "agent-dna-cli",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "bin": {
+    "agent-dna": "./src/agent-dna-cli.ts"
+  }
+}

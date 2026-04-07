@@ -1,0 +1,8 @@
+codex:
+  - db_contracts
+  - custom.policy
+  - custom.visibility
+cursor:
+  - projects
+claude:
+  - db_contracts

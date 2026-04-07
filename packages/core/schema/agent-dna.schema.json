@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-dna.dev/schema/dna.schema.json",
+  "title": "Agent DNA",
+  "type": "object",
+  "required": ["version", "identity", "stack"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "identity": {
+      "type": "object",
+      "required": ["name", "role"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "role": { "type": "string", "minLength": 1 },
+        "experience_years": { "type": "number", "minimum": 0 },
+        "timezone": { "type": "string", "minLength": 1 },
+        "language": { "type": "string", "minLength": 1 },
+        "output_language": { "type": "string", "minLength": 1 }
+      }
+    },
+    "stack": {
+      "type": "object",
+      "required": ["primary"],
+      "additionalProperties": false,
+      "properties": {
+        "primary": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1
+        },
+        "backend": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "tools": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "avoid": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "never": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "always": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "formatting": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "active_project": { "type": "string", "minLength": 1 },
+        "active_sprint": { "type": "string", "minLength": 1 },
+        "os": { "type": "string", "minLength": 1 },
+        "shell": { "type": "string", "minLength": 1 }
+      }
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "repo": { "type": "string", "minLength": 1 },
+          "rules_file": { "type": "string", "minLength": 1 },
+          "stack": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "db_contracts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tables": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              { "type": "string", "minLength": 1 },
+              {
+                "type": "object",
+                "additionalProperties": { "type": "string", "minLength": 1 }
+              }
+            ]
+          }
+        },
+        "valid_notification_types": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "valid_notification_categories": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "forbidden_fields": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tone": { "type": "string", "minLength": 1 },
+        "code_comments": { "type": "string", "minLength": 1 },
+        "explanation_depth": { "type": "string", "minLength": 1 },
+        "ask_clarification": { "type": "string", "minLength": 1 }
+      }
+    },
+    "custom": {
+      "type": "object"
+    }
+  }
+}

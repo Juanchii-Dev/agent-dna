@@ -1,0 +1,10 @@
+# Base docs operativas de IA: se usan localmente al instanciar, pero no se suben al git del proyecto real.
+AGENTS.md
+CODEX.md
+README.md
+*.md
+docs/
+node_modules/
+dist/
+.agent-dna/
+*.tsbuildinfo

@@ -1,0 +1,13 @@
+context:
+  active_project: "Pulse Enterprise"
+  active_sprint: "CLI"
+
+preferences:
+  tone: "claro, sobrio, enterprise"
+
+custom:
+  business: "infraestructura portable de identidad para IAs"
+  policy:
+    approval_mode: "team_review"
+    secret_policy: "never_expose"
+  visibility: "team"

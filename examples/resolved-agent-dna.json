@@ -1,0 +1,42 @@
+{
+  "agent_dna": {
+    "meta": {
+      "schema_version": "0.1.0",
+      "dna_version": "v2.0.0",
+      "visibility": "team"
+    },
+    "identity": {
+      "name": "Juanchi",
+      "role": "Fullstack founder",
+      "stack": [
+        "React",
+        "TypeScript",
+        "Supabase",
+        "MCP",
+        "CLI"
+      ]
+    },
+    "preferences": {
+      "language": "es-AR",
+      "tone": "claro, sobrio, orientado a equipo"
+    },
+    "rules": {
+      "always": [
+        "usar PowerShell con ;",
+        "mantener consistencia de lenguaje entre herramientas"
+      ],
+      "never": [
+        "usar any en TS",
+        "no mezclar Agent DNA con otros productos del workspace"
+      ]
+    },
+    "context": {
+      "active_project": "Agent DNA",
+      "business": "operacion coordinada entre multiples asistentes y repos"
+    },
+    "policy": {
+      "secret_policy": "never_expose",
+      "approval_mode": "team_review"
+    }
+  }
+}
