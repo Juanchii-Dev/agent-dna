@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Pillar, Stat } from "./data";
 
 type LandingProps = {
@@ -9,6 +10,8 @@ type LandingProps = {
 };
 
 export function LandingView({ onOpenEditor, onOpenMarketplace, pillars, stats, yamlPreview }: LandingProps) {
+  const [isResolvedExpanded, setIsResolvedExpanded] = useState(false);
+
   return (
     <main className="page pageLanding">
       <section className="hero">
@@ -24,11 +27,18 @@ export function LandingView({ onOpenEditor, onOpenMarketplace, pillars, stats, y
           </div>
         </div>
 
-        <div className="heroPanel">
+        <div className={isResolvedExpanded ? "heroPanel heroPanelExpanded" : "heroPanel"}>
           <div className="panelHeader">
             <span>Resolved DNA</span>
             <span className="statusDot">Published</span>
           </div>
+          <button
+            className="previewExpandButton"
+            onClick={() => setIsResolvedExpanded((current) => !current)}
+            type="button"
+          >
+            {isResolvedExpanded ? "Ver menos" : "Ver mas"}
+          </button>
           <pre>{yamlPreview}</pre>
         </div>
       </section>
