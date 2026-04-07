@@ -24,7 +24,7 @@ import {
 import { buildDiffOutput } from "./diff-command";
 import { buildGitHookSnippet, installGitHook } from "./git-hooks";
 import { runWrappedCommand } from "./run-command";
-import { buildPowerShellHookSnippet, installPowerShellHook } from "./shell-hooks";
+import { buildBashHookSnippet, buildPowerShellHookSnippet, installBashHook, installPowerShellHook } from "./shell-hooks";
 
 type Command =
   | "export"
@@ -135,6 +135,18 @@ async function handleHook(target: string | null, args: string[]) {
     return;
   }
 
+  if (target === "bash") {
+    if (args.includes("--install")) {
+      const profilePath = getArg("--profile", args);
+      const result = await installBashHook(profilePath);
+      console.log(result.created ? `Hook bash instalado en ${result.path}` : `Hook bash ya presente en ${result.path}`);
+      return;
+    }
+
+    console.log(buildBashHookSnippet());
+    return;
+  }
+
   if (target === "git") {
     if (args.includes("--install")) {
       const hookPath = getArg("--path", args);
@@ -147,7 +159,7 @@ async function handleHook(target: string | null, args: string[]) {
     return;
   }
 
-  throw new Error("Solo se soporta powershell o git en este slice");
+  throw new Error("Solo se soporta powershell, bash o git en este slice");
 }
 
 export async function runCli(argv: string[]) {
