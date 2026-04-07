@@ -1,5 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+import YAML from "yaml";
 import {
   applyDnaIgnore,
   buildDocumentJson,
@@ -18,15 +20,52 @@ import type { DnaAdapterName } from "../../core/src/index";
 type Command =
   | "export"
   | "export-agents"
+  | "help"
   | "init"
   | "inject"
   | "resolve"
   | "show"
   | "validate";
 
+const SUPPORTED_FORMATS = ["yaml", "json"] as const;
+const SUPPORTED_TOOLS = ["stdout", "codex", "cursor", "claude"] as const;
+const USAGE =
+  "Uso: npm run cli -- <init|show|validate|export|inject|resolve|export-agents> [archivo] [--format yaml|json] [--out ruta] [--override ruta] [--tool codex|cursor|claude|stdout] [--dnaignore ruta] [--field ruta.dot]";
+
 function getArg(flag: string, args: string[]) {
   const index = args.indexOf(flag);
   return index === -1 ? null : args[index + 1] ?? null;
+}
+
+function getFormat(args: string[]) {
+  const format = (getArg("--format", args) ?? "yaml") as (typeof SUPPORTED_FORMATS)[number];
+  if (!SUPPORTED_FORMATS.includes(format)) {
+    throw new Error(`Formato no soportado: ${format}`);
+  }
+  return format;
+}
+
+function getTool(args: string[], fallback: DnaAdapterName = "stdout") {
+  const tool = (getArg("--tool", args) ?? fallback) as DnaAdapterName;
+  if (!SUPPORTED_TOOLS.includes(tool)) {
+    throw new Error(`Tool no soportado: ${tool}`);
+  }
+  return tool;
+}
+
+function getFieldValue(document: Record<string, unknown>, field: string | null) {
+  if (!field) {
+    return document;
+  }
+
+  const value = field.split(".").reduce<unknown>((current, segment) => {
+    if (!current || typeof current !== "object" || !(segment in current)) {
+      throw new Error(`Campo no encontrado: ${field}`);
+    }
+    return (current as Record<string, unknown>)[segment];
+  }, document);
+
+  return value;
 }
 
 async function readOptionalFile(filePath: string | null) {
@@ -86,7 +125,8 @@ async function writeOutput(outPath: string | null, output: string, successMessag
 }
 
 async function handleInit(args: string[]) {
-  const outPath = resolve(getArg("--out", args) ?? ".agent-dna/dna.yaml");
+  const positionalPath = args[0] && !args[0].startsWith("--") ? args[0] : null;
+  const outPath = resolve(getArg("--out", args) ?? positionalPath ?? ".agent-dna/dna.yaml");
   await mkdir(dirname(outPath), { recursive: true });
   await writeFile(outPath, buildDocumentYaml(initialDnaDocument), "utf8");
   console.log(`DNA inicial creado en ${outPath}`);
@@ -100,12 +140,14 @@ async function handleValidate(filePath: string, args: string[]) {
 async function handleShow(filePath: string, args: string[]) {
   const document = await loadResolvedDocument(filePath, args);
   const field = getArg("--field", args);
-  const format = getArg("--format", args) ?? "yaml";
-  const selected = field ? (document as Record<string, unknown>)[field] : document;
+  const format = getFormat(args);
+  const selected = getFieldValue(document as Record<string, unknown>, field);
   const output =
     format === "json"
       ? JSON.stringify(selected, null, 2)
-      : buildDocumentYaml(selected as typeof document).trimEnd();
+      : typeof selected === "object" && selected !== null
+        ? YAML.stringify(selected).trimEnd()
+        : String(selected);
 
   console.log(output);
 }
@@ -113,13 +155,13 @@ async function handleShow(filePath: string, args: string[]) {
 async function handleExport(filePath: string, args: string[]) {
   const document = await loadResolvedDocument(filePath, args);
   const outPath = getArg("--out", args);
-  const format = getArg("--format", args) ?? "yaml";
+  const format = getFormat(args);
   const output = format === "json" ? buildDocumentJson(document) : buildDocumentYaml(document);
   await writeOutput(outPath, output, "DNA exportado en");
 }
 
 async function handleInject(filePath: string, args: string[]) {
-  const tool = (getArg("--tool", args) ?? "stdout") as DnaAdapterName;
+  const tool = getTool(args);
   const document = await loadResolvedDocument(filePath, args);
   const state = mapDocumentToState(document);
   const adapter = getAdapter(tool);
@@ -128,25 +170,22 @@ async function handleInject(filePath: string, args: string[]) {
   await writeOutput(outPath, output, `${tool} exportado en`);
 }
 
-async function main() {
-  const [, , rawCommand, rawFile, ...rest] = process.argv;
+export async function runCli(argv: string[]) {
+  const [rawCommand, rawFile, ...rest] = argv;
   const command = rawCommand as Command | undefined;
 
-  if (!command) {
-    console.error(
-      "Uso: npm run cli -- <init|show|validate|export|inject|resolve|export-agents> [archivo] [--format yaml|json] [--out ruta] [--override ruta] [--tool codex|cursor|claude|stdout] [--dnaignore ruta]"
-    );
-    process.exit(1);
+  if (!command || command === "help" || rest.includes("--help")) {
+    console.error(USAGE);
+    return 1;
   }
 
   if (command === "init") {
     await handleInit(rawFile ? [rawFile, ...rest] : rest);
-    process.exit(0);
+    return 0;
   }
 
   if (!rawFile) {
-    console.error("Falta archivo DNA");
-    process.exit(1);
+    throw new Error("Falta archivo DNA");
   }
 
   switch (command) {
@@ -167,13 +206,21 @@ async function main() {
       await handleInject(rawFile, ["--tool", "codex", ...rest]);
       break;
     default:
-      console.error(`Comando no soportado: ${rawCommand}`);
-      process.exit(1);
+      throw new Error(`Comando no soportado: ${rawCommand}`);
   }
+
+  return 0;
 }
 
-main().catch((error: unknown) => {
-  const message = error instanceof Error ? error.message : "Error desconocido";
-  console.error(message);
-  process.exit(1);
-});
+async function main() {
+  const exitCode = await runCli(process.argv.slice(2));
+  process.exit(exitCode);
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error: unknown) => {
+    const message = error instanceof Error ? error.message : "Error desconocido";
+    console.error(message);
+    process.exit(1);
+  });
+}
