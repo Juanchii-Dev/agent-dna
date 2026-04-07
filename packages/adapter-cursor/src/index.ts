@@ -1,4 +1,4 @@
-import type { DnaAdapter } from "../../core/src/types";
+import type { DnaAdapter } from "../../types/src/index";
 
 export const cursorAdapter: DnaAdapter = {
   name: "cursor",

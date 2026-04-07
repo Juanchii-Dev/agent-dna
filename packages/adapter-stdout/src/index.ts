@@ -1,5 +1,5 @@
 import { buildDocumentYaml } from "../../core/src/document";
-import type { DnaAdapter } from "../../core/src/types";
+import type { DnaAdapter } from "../../types/src/index";
 
 export const stdoutAdapter: DnaAdapter = {
   name: "stdout",

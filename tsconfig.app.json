@@ -13,7 +13,8 @@
     "moduleResolution": "Bundler",
     "baseUrl": ".",
     "paths": {
-      "@agent-dna/core": ["packages/core/src/index.ts"]
+      "@agent-dna/core": ["packages/core/src/index.ts"],
+      "@agent-dna/types": ["packages/types/src/index.ts"]
     },
     "types": ["vitest/globals"],
     "resolveJsonModule": true,
@@ -21,6 +22,6 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["apps/demo/src", "packages/core/src", "packages/core/schema", "packages/cli/src", "packages/adapter-*/src"],
+  "include": ["apps/demo/src", "packages/core/src", "packages/core/schema", "packages/cli/src", "packages/types/src", "packages/adapter-*/src"],
   "exclude": []
 }
