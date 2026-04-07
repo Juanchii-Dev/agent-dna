@@ -2,11 +2,17 @@
   "name": "agent-dna",
   "version": "0.1.0",
   "description": "CLI for validating, exporting and injecting Agent DNA across AI tools.",
-  "keywords": ["agent-dna", "ai", "cli", "developer-tools", "automation"],
+  "keywords": [
+    "agent-dna",
+    "ai",
+    "cli",
+    "developer-tools",
+    "automation"
+  ],
   "type": "module",
   "main": "./dist/agent-dna-cli.js",
   "bin": {
-    "agent-dna": "./dist/agent-dna-cli.js"
+    "agent-dna": "dist/agent-dna-cli.js"
   },
   "files": [
     "dist"
@@ -18,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Juanchii-Dev/agent-dna.git"
+    "url": "git+https://github.com/Juanchii-Dev/agent-dna.git"
   },
   "publishConfig": {
     "access": "public"
