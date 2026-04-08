@@ -1,4 +1,4 @@
-import type { AgentDnaState, LayerId, PlatformPreview } from "@tuwebai/core/browser";
+import type { AgentDnaState, LayerId, PlatformPreview } from "@agent-dna/core/browser";
 
 export type NavTab = "landing" | "editor" | "marketplace";
 

@@ -3,8 +3,8 @@
 > Portable AI identity for developers. Local-first, adapter-based, open by default.
 
 [![npm version](https://img.shields.io/npm/v/agent-dna?color=0f766e)](https://www.npmjs.com/package/agent-dna)
-[![npm core](https://img.shields.io/npm/v/%40tuwebai%2Fcore?color=111827)](https://www.npmjs.com/package/@tuwebai/core)
-[![npm types](https://img.shields.io/npm/v/%40tuwebai%2Ftypes?color=2563eb)](https://www.npmjs.com/package/@tuwebai/types)
+[![npm core](https://img.shields.io/npm/v/%40agent--dna%2Fcore?color=111827)](https://www.npmjs.com/package/@agent-dna/core)
+[![npm types](https://img.shields.io/npm/v/%40agent--dna%2Ftypes?color=2563eb)](https://www.npmjs.com/package/@agent-dna/types)
 [![License: MIT](https://img.shields.io/badge/license-MIT-f59e0b)](./LICENSE)
 
 Agent DNA defines a single developer document that can be validated, merged, filtered, exported, and injected into multiple AI tools without rebuilding context from zero on every session.
@@ -62,8 +62,8 @@ Agent DNA turns that into one portable source of truth:
 ### Published packages
 
 - [`agent-dna`](https://www.npmjs.com/package/agent-dna)
-- [`@tuwebai/core`](https://www.npmjs.com/package/@tuwebai/core)
-- [`@tuwebai/types`](https://www.npmjs.com/package/@tuwebai/types)
+- [`@agent-dna/core`](https://www.npmjs.com/package/@agent-dna/core)
+- [`@agent-dna/types`](https://www.npmjs.com/package/@agent-dna/types)
 
 ## Repo structure
 
@@ -210,8 +210,8 @@ npm run cli -- override pulse-enterprise
 | Package | Purpose |
 |---|---|
 | [`agent-dna`](https://www.npmjs.com/package/agent-dna) | End-user CLI |
-| [`@tuwebai/core`](https://www.npmjs.com/package/@tuwebai/core) | Schema, parser, resolver, generators, adapter registry |
-| [`@tuwebai/types`](https://www.npmjs.com/package/@tuwebai/types) | Shared public types |
+| [`@agent-dna/core`](https://www.npmjs.com/package/@agent-dna/core) | Schema, parser, resolver, generators, adapter registry |
+| [`@agent-dna/types`](https://www.npmjs.com/package/@agent-dna/types) | Shared public types |
 
 ## Current product boundaries
 
@@ -246,8 +246,8 @@ Not implemented yet:
 
 - Repository: [github.com/Juanchii-Dev/agent-dna](https://github.com/Juanchii-Dev/agent-dna)
 - CLI package: [npmjs.com/package/agent-dna](https://www.npmjs.com/package/agent-dna)
-- Core package: [npmjs.com/package/@tuwebai/core](https://www.npmjs.com/package/@tuwebai/core)
-- Types package: [npmjs.com/package/@tuwebai/types](https://www.npmjs.com/package/@tuwebai/types)
+- Core package: [npmjs.com/package/@agent-dna/core](https://www.npmjs.com/package/@agent-dna/core)
+- Types package: [npmjs.com/package/@agent-dna/types](https://www.npmjs.com/package/@agent-dna/types)
 
 ## Status
 

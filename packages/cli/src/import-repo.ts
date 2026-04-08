@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { basename, dirname, resolve } from "node:path";
-import { buildDocumentYaml, initialDnaDocument, type AgentDnaDocument } from "@tuwebai/core";
+import { buildDocumentYaml, initialDnaDocument, type AgentDnaDocument } from "@agent-dna/core";
 import { getArg, readOptionalFile } from "./cli-shared";
 
 type ImportRepoInput = {

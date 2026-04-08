@@ -16,7 +16,7 @@ import {
   type AgentDnaDocument,
   type AgentDnaState,
   type LayerId,
-} from "@tuwebai/core/browser";
+} from "@agent-dna/core/browser";
 import { AppHeader } from "./app-header";
 import { LAYERS_KEY, STORAGE_KEY, tabs, type ImportState } from "./app-config";
 import { mapImportIssuesToFields } from "./import-errors";

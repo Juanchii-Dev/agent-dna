@@ -7,8 +7,8 @@ import {
   parseDnaIgnore,
   parseImportedDocument,
   parseOverrideDocument
-} from "@tuwebai/core";
-import type { AgentDnaDocument, DnaAdapterName } from "@tuwebai/core";
+} from "@agent-dna/core";
+import type { AgentDnaDocument, DnaAdapterName } from "@agent-dna/core";
 
 export const SUPPORTED_FORMATS = ["yaml", "json"] as const;
 export const SUPPORTED_TOOLS = ["stdout", "codex", "cursor", "claude"] as const;

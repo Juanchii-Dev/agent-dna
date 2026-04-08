@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import { access } from "node:fs/promises";
 import { resolve } from "node:path";
-import { buildDocumentJson, mapDocumentToState } from "@tuwebai/core";
+import { buildDocumentJson, mapDocumentToState } from "@agent-dna/core";
 import { getArg, getTool, loadResolvedDocument, resolveBaseDnaPath } from "./cli-shared";
 
 type RunCommandInput = {
