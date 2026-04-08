@@ -1,6 +1,6 @@
 {
   "name": "agent-dna",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "CLI for validating, exporting and injecting Agent DNA across AI tools.",
   "keywords": [
     "agent-dna",
@@ -33,7 +33,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@tuwebai/core": "0.1.2",
+    "@tuwebai/core": "0.1.3",
     "yaml": "^2.8.1"
   },
   "scripts": {

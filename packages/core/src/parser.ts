@@ -1,4 +1,4 @@
-import Ajv2020, { type ErrorObject } from "ajv/dist/2020";
+import Ajv2020, { type ErrorObject } from "ajv/dist/2020.js";
 import { parse } from "yaml";
 import { mapDocumentToState, normalizeLegacyDocument } from "./document";
 import type { AgentDnaDocument, AgentDnaState, LegacyAgentDnaDocument } from "./types";
