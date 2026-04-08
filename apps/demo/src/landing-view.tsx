@@ -1,15 +1,16 @@
 import { useState } from "react";
-import type { Pillar, Stat } from "./data";
+import type { ContrastCard, Pillar, Stat } from "./data";
 
 type LandingProps = {
   onOpenEditor: () => void;
   onOpenMarketplace: () => void;
+  contrastCards: ContrastCard[];
   pillars: Pillar[];
   stats: Stat[];
   yamlPreview: string;
 };
 
-export function LandingView({ onOpenEditor, onOpenMarketplace, pillars, stats, yamlPreview }: LandingProps) {
+export function LandingView({ onOpenEditor, onOpenMarketplace, contrastCards, pillars, stats, yamlPreview }: LandingProps) {
   const [isResolvedExpanded, setIsResolvedExpanded] = useState(false);
 
   return (
@@ -21,6 +22,18 @@ export function LandingView({ onOpenEditor, onOpenMarketplace, pillars, stats, y
           <p className="lead">
             Agent DNA convierte identidad, reglas, preferencias y contexto de negocio en un contrato portable.
           </p>
+          <div className="contrastGrid">
+            {contrastCards.map((card) => (
+              <article className="contrastCard" key={card.title}>
+                <strong>{card.title}</strong>
+                <ul>
+                  {card.points.map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
           <div className="ctaRow">
             <button className="primaryCta" onClick={onOpenEditor} type="button">Abrir editor</button>
             <button className="ghostCta" onClick={onOpenMarketplace} type="button">Ver marketplace</button>

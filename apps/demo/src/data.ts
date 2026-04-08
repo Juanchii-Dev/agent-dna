@@ -5,6 +5,7 @@ export type NavTab = "landing" | "editor" | "marketplace";
 export type Stat = { label: string; value: string };
 export type Pillar = { title: string; text: string };
 export type MarketplaceCard = { description: string; name: string; tag: string };
+export type ContrastCard = { points: string[]; title: string };
 export type LayerPreset = {
   description: string;
   id: LayerId;
@@ -36,6 +37,25 @@ export const stats: Stat[] = [
   { label: "Tiempo a contexto util", value: "2 min" },
   { label: "Repos sincronizados", value: "24" },
   { label: "Herramientas compatibles", value: "7" },
+];
+
+export const contrastCards: ContrastCard[] = [
+  {
+    title: "Sin Agent DNA",
+    points: [
+      "cada cliente arranca sin tu stack ni tus reglas",
+      "repetis contexto en Claude, Codex y Cursor por separado",
+      "las restricciones duras quedan desperdigadas en markdowns"
+    ]
+  },
+  {
+    title: "Con Agent DNA",
+    points: [
+      "una identidad portable resuelve el contexto base una sola vez",
+      "los adapters generan artefactos por herramienta sin drift silencioso",
+      "el repo mantiene AGENTS.md, pero el source of truth vive en DNA"
+    ]
+  }
 ];
 
 export const pillars: Pillar[] = [

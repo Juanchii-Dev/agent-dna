@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
-import { marketplaceCards, marketplaceTemplates, pillars, stats, type NavTab } from "./data";
+import { contrastCards, marketplaceCards, marketplaceTemplates, pillars, stats, type NavTab } from "./data";
 import {
   AgentDnaImportError,
   buildAgentsPreview,
@@ -158,6 +158,7 @@ export function App() {
 
       {activeTab === "landing" ? (
         <LandingView
+          contrastCards={contrastCards}
           onOpenEditor={() => setActiveTab("editor")}
           onOpenMarketplace={() => setActiveTab("marketplace")}
           pillars={pillars}

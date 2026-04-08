@@ -11,6 +11,20 @@ Agent DNA defines a single developer document that can be validated, merged, fil
 
 This repo is the current open-source implementation of that standard.
 
+## 30-second value
+
+Without Agent DNA:
+
+- every AI client starts with partial memory
+- your hard rules live in repo markdowns, personal notes, or old chats
+- switching from Codex to Claude to Cursor means re-onboarding each tool
+
+With Agent DNA:
+
+- one canonical DNA document carries identity, stack, rules, and active context
+- adapters generate the artifact each tool expects from the same source of truth
+- repo docs like `AGENTS.md` become derived outputs instead of the only place where rules live
+
 ## Why it exists
 
 Most AI workflows still depend on fragmented memory:
