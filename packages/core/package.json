@@ -1,6 +1,6 @@
 {
   "name": "@agent-dna/core",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "Core parser, schema, resolver and generators for the Agent DNA standard.",
   "keywords": ["agent-dna", "ai", "cli", "schema", "developer-tools"],
   "type": "module",
@@ -37,7 +37,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@agent-dna/types": "0.1.13",
+    "@agent-dna/types": "0.1.14",
     "ajv": "^8.17.1",
     "yaml": "^2.8.1"
   },

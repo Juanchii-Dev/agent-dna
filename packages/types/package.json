@@ -1,6 +1,6 @@
 {
   "name": "@agent-dna/types",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "Shared TypeScript types for the Agent DNA open standard.",
   "keywords": ["agent-dna", "ai", "types", "schema", "developer-tools"],
   "type": "module",

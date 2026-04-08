@@ -188,6 +188,8 @@ describe("agent-dna-cli", () => {
     expect(baseFile).not.toContain("db_contracts:");
     expect(baseFile).not.toContain("import_candidates:");
     expect(baseFile).toContain("“por seguridad”");
+    expect(baseFile).toContain("primary:");
+    expect(baseFile).toContain("TypeScript");
     expect(overrideFile).toContain("active_project: Pulse");
     expect(overrideFile).not.toContain("identity:");
     expect(overrideFile).not.toContain("rules:");

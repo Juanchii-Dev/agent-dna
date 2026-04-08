@@ -24,13 +24,24 @@ const NEVER_RULE_PATTERN =
   /\b(nunca|never|prohibido|no usar|no inventar|no exponer|no forzar|no mezclar|no asumir|no narrar|sin )\b/i;
 const ALWAYS_RULE_PATTERN = /\b(siempre|always|responder|usar |aplicar|mantener|preferir|corregir|trabajar)\b/i;
 const MOJIBAKE_REPAIRS: Array<[RegExp, string]> = [
+  [/espaÃƒÂ±ol/gi, "español"],
   [/espaÃ±ol/gi, "español"],
+  [/ÃƒÂ¡/g, "á"],
+  [/ÃƒÂ©/g, "é"],
+  [/ÃƒÂ­/g, "í"],
+  [/ÃƒÂ³/g, "ó"],
+  [/ÃƒÂº/g, "ú"],
+  [/ÃƒÂ±/g, "ñ"],
   [/Ã¡/g, "á"],
   [/Ã©/g, "é"],
   [/Ã­/g, "í"],
   [/Ã³/g, "ó"],
   [/Ãº/g, "ú"],
   [/Ã±/g, "ñ"],
+  [/Ã¢â‚¬Å“/g, "“"],
+  [/Ã¢â‚¬Â/g, "”"],
+  [/Ã¢â‚¬Ëœ/g, "‘"],
+  [/Ã¢â‚¬â„¢/g, "’"],
   [/â€œ/g, "“"],
   [/â€/g, "”"],
   [/â€˜/g, "‘"],
@@ -214,14 +225,65 @@ function detectActiveProject(content: string | null, fallback: string) {
   return match?.[1]?.trim() || fallback;
 }
 
+function inferStack(content: string | null) {
+  const normalized = normalizeRule(content ?? "").toLowerCase();
+  const primary: string[] = [];
+  const tools: string[] = [];
+
+  if (/typescript/.test(normalized)) {
+    primary.push("TypeScript");
+  }
+  if (/\breact\b/.test(normalized)) {
+    primary.push("React");
+  }
+  if (/vite/.test(normalized)) {
+    primary.push("Vite");
+  }
+  if (/tailwind/.test(normalized)) {
+    primary.push("Tailwind CSS");
+  }
+  if (/supabase/.test(normalized)) {
+    primary.push("Supabase");
+  }
+  if (/postgres/.test(normalized)) {
+    primary.push("PostgreSQL");
+  }
+  if (/\bnode\b/.test(normalized)) {
+    primary.push("Node.js");
+  }
+  if (/express/.test(normalized)) {
+    primary.push("Express");
+  }
+  if (/powershell/.test(normalized)) {
+    tools.push("PowerShell");
+  }
+  if (/\bgit\b/.test(normalized)) {
+    tools.push("Git");
+  }
+
+  if (!primary.length) {
+    primary.push("TypeScript");
+  }
+
+  return {
+    primary: dedupeRules(primary),
+    tools: dedupeRules(tools)
+  };
+}
+
 function buildImportedBaseDocument(name: string, role: string, agentsContent: string | null, candidates: CandidateRule[]): AgentDnaDocument {
   const rules = extractPortableRules(candidates);
   const document = createEmptyDocument();
+  const inferredStack = inferStack(agentsContent);
 
   document.identity = {
     name,
     role,
     output_language: detectOutputLanguage(agentsContent)
+  };
+  document.stack = {
+    primary: inferredStack.primary,
+    ...(inferredStack.tools.length ? { tools: inferredStack.tools } : {})
   };
   document.rules = {
     always: rules.always,
