@@ -178,6 +178,7 @@ async function handleImportRepo(target: string | null, args: string[]) {
   const result = await importRepoDocuments({ args, target });
   console.log(`DNA portable creado en ${result.outPath}`);
   console.log(`Override portable creado en ${result.overrideOutPath}`);
+  console.log(`Reporte de importacion creado en ${result.reportOutPath}`);
 }
 
 export async function runCli(argv: string[]) {

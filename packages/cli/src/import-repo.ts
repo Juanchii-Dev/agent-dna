@@ -8,6 +8,16 @@ type ImportRepoInput = {
   target: string | null;
 };
 
+type CandidateRule = {
+  confidence: "high" | "medium" | "low";
+  portability: "high" | "medium" | "low";
+  reviewRequired: boolean;
+  sourceFile: string;
+  sourceSection: string;
+  target: "rules.always" | "rules.never" | "review";
+  text: string;
+};
+
 const SKIP_RULE_PATTERN =
   /AGENTS\.md|CONTEXT\.md|CODEX-EFFICIENCY|skills\/|docs\/|slice|token|commentary|gitignore|\.sql|migraciones|tool call|qa|deploy/i;
 const NEVER_RULE_PATTERN =
@@ -69,21 +79,103 @@ function dedupeRules(rules: string[]) {
   });
 }
 
-function extractPortableRules(content: string | null) {
-  if (!content) {
-    return { always: [] as string[], never: [] as string[] };
+function classifyConfidence(rule: string, sourceFile: string, sourceSection: string): CandidateRule["confidence"] {
+  if (sourceFile === "AGENTS.md" && /TL;DR|Reglas no negociables|Guardrails/i.test(sourceSection)) {
+    return "high";
   }
 
-  const rules = content
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line.startsWith("- "))
-    .map((line) => normalizeRule(line.slice(2)))
-    .filter((line) => line.length > 0 && !SKIP_RULE_PATTERN.test(line));
+  if (/siempre|nunca|never|always/i.test(rule)) {
+    return "high";
+  }
+
+  if (sourceFile === "AGENTS.md") {
+    return "medium";
+  }
+
+  return "low";
+}
+
+function classifyPortability(rule: string, sourceFile: string): CandidateRule["portability"] {
+  if (SKIP_RULE_PATTERN.test(rule)) {
+    return "low";
+  }
+
+  if (sourceFile === "AGENTS.md" && /espanol|español|typescript|power(shell)?|schema|secretos|frontend/i.test(rule)) {
+    return "high";
+  }
+
+  return sourceFile === "AGENTS.md" ? "medium" : "low";
+}
+
+function extractCandidateRules(content: string | null, sourceFile: string) {
+  if (!content) {
+    return [] as CandidateRule[];
+  }
+
+  let currentSection = "root";
+  const candidates: CandidateRule[] = [];
+
+  for (const rawLine of content.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line) {
+      continue;
+    }
+
+    if (line.startsWith("#")) {
+      currentSection = line.replace(/^#+\s*/, "").trim() || "root";
+      continue;
+    }
+
+    if (!line.startsWith("- ")) {
+      continue;
+    }
+
+    const text = normalizeRule(line.slice(2));
+    if (!text || SKIP_RULE_PATTERN.test(text)) {
+      continue;
+    }
+
+    const target = NEVER_RULE_PATTERN.test(text)
+      ? "rules.never"
+      : ALWAYS_RULE_PATTERN.test(text)
+        ? "rules.always"
+        : "review";
+    const portability = classifyPortability(text, sourceFile);
+    const confidence = classifyConfidence(text, sourceFile, currentSection);
+
+    candidates.push({
+      confidence,
+      portability,
+      reviewRequired: portability === "low" || target === "review" || confidence === "low",
+      sourceFile,
+      sourceSection: currentSection,
+      target,
+      text
+    });
+  }
+
+  return candidates;
+}
+
+function dedupeCandidates(candidates: CandidateRule[]) {
+  const seen = new Set<string>();
+  return candidates.filter((candidate) => {
+    const key = `${candidate.target}:${canonicalRuleKey(candidate.text)}`;
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
+
+function extractPortableRules(candidates: CandidateRule[]) {
+  const accepted = candidates.filter((candidate) => !candidate.reviewRequired && candidate.portability !== "low");
 
   return {
-    always: dedupeRules(rules.filter((rule) => ALWAYS_RULE_PATTERN.test(rule) && !NEVER_RULE_PATTERN.test(rule))),
-    never: dedupeRules(rules.filter((rule) => NEVER_RULE_PATTERN.test(rule)))
+    always: dedupeRules(accepted.filter((candidate) => candidate.target === "rules.always").map((candidate) => candidate.text)),
+    never: dedupeRules(accepted.filter((candidate) => candidate.target === "rules.never").map((candidate) => candidate.text))
   };
 }
 
@@ -104,8 +196,8 @@ function detectActiveProject(content: string | null, fallback: string) {
   return match?.[1]?.trim() || fallback;
 }
 
-function buildImportedBaseDocument(name: string, role: string, agentsContent: string | null): AgentDnaDocument {
-  const rules = extractPortableRules(agentsContent);
+function buildImportedBaseDocument(name: string, role: string, agentsContent: string | null, candidates: CandidateRule[]): AgentDnaDocument {
+  const rules = extractPortableRules(candidates);
   const document = createEmptyDocument();
 
   document.identity = {
@@ -118,7 +210,16 @@ function buildImportedBaseDocument(name: string, role: string, agentsContent: st
     never: rules.never
   };
   document.custom = {
-    imported_from: "repo-docs"
+    imported_from: "repo-docs",
+    import_candidates: candidates.map((candidate) => ({
+      confidence: candidate.confidence,
+      portability: candidate.portability,
+      review_required: candidate.reviewRequired,
+      source_file: candidate.sourceFile,
+      source_section: candidate.sourceSection,
+      target: candidate.target,
+      text: candidate.text
+    }))
   };
 
   return document;
@@ -190,6 +291,31 @@ function attachReviewRequired(baseDocument: AgentDnaDocument, overrideDocument: 
   };
 }
 
+function buildImportReport(candidates: CandidateRule[], baseDocument: AgentDnaDocument, overrideDocument: AgentDnaDocument) {
+  const accepted = candidates.filter((candidate) => !candidate.reviewRequired && candidate.portability !== "low");
+  const review = candidates.filter((candidate) => candidate.reviewRequired || candidate.portability === "low");
+
+  return [
+    "# Import Report",
+    "",
+    `Accepted rules: ${accepted.length}`,
+    `Review required: ${review.length}`,
+    `Base active project: ${baseDocument.context?.active_project ?? "none"}`,
+    `Override active project: ${overrideDocument.context?.active_project ?? "none"}`,
+    "",
+    "## Accepted",
+    ...accepted.map(
+      (candidate) => `- [${candidate.target}] ${candidate.text} (${candidate.sourceFile} > ${candidate.sourceSection})`
+    ),
+    "",
+    "## Review Required",
+    ...review.map(
+      (candidate) =>
+        `- [${candidate.target}] ${candidate.text} | confidence=${candidate.confidence} portability=${candidate.portability}`
+    )
+  ].join("\n");
+}
+
 function ensureNoBaseContracts(document: AgentDnaDocument) {
   const cleaned = structuredClone(document);
   delete cleaned.db_contracts;
@@ -214,19 +340,23 @@ export async function importRepoDocuments({ args, target }: ImportRepoInput) {
   const importRoot = resolve(repoPath, ".agent-dna", "imports");
   const outPath = resolve(getArg("--out", args) ?? resolve(importRoot, `${repoName}.yaml`));
   const overrideOutPath = resolve(getArg("--override-out", args) ?? resolve(importRoot, `${repoName}.override.yaml`));
+  const reportOutPath = resolve(getArg("--report-out", args) ?? resolve(importRoot, `${repoName}.import-report.md`));
   const name = getArg("--name", args) ?? process.env.USERNAME ?? "Imported Developer";
   const role = getArg("--role", args) ?? "Developer";
   const project = getArg("--project", args) ?? repoName;
   const agentsContent = await readOptionalFile(resolve(repoPath, "AGENTS.md"));
   const contextContent = await readOptionalFile(resolve(repoPath, "CONTEXT.md"));
+  const candidates = dedupeCandidates(extractCandidateRules(agentsContent, "AGENTS.md"));
 
-  const baseDocument = ensureNoBaseContracts(buildImportedBaseDocument(name, role, agentsContent));
+  const baseDocument = ensureNoBaseContracts(buildImportedBaseDocument(name, role, agentsContent, candidates));
   const overrideDocument = ensureDeltaOverride(buildImportedOverrideDocument(project, repoName, contextContent));
   const result = attachReviewRequired(baseDocument, overrideDocument);
+  const report = buildImportReport(candidates, result.baseDocument, result.overrideDocument);
 
   await mkdir(dirname(outPath), { recursive: true });
   await writeFile(outPath, buildDocumentYaml(result.baseDocument), "utf8");
   await writeFile(overrideOutPath, buildDocumentYaml(result.overrideDocument), "utf8");
+  await writeFile(reportOutPath, report, "utf8");
 
-  return { outPath, overrideOutPath };
+  return { outPath, overrideOutPath, reportOutPath };
 }
