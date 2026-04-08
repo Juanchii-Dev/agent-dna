@@ -1,6 +1,6 @@
 {
   "name": "@tuwebai/core",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Core parser, schema, resolver and generators for the Agent DNA standard.",
   "keywords": ["agent-dna", "ai", "cli", "schema", "developer-tools"],
   "type": "module",
@@ -33,7 +33,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@tuwebai/types": "0.1.3",
+    "@tuwebai/types": "0.1.4",
     "ajv": "^8.17.1",
     "yaml": "^2.8.1"
   },

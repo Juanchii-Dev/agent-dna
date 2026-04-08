@@ -14,6 +14,7 @@ import type { DnaAdapterName } from "@tuwebai/core";
 import {
   getActiveOverridePath,
   getArg,
+  getDefaultDnaPath,
   getFieldValue,
   getFormat,
   getTool,
@@ -55,7 +56,7 @@ async function writeOutput(outPath: string | null, output: string, successMessag
 
 async function handleInit(args: string[]) {
   const positionalPath = args[0] && !args[0].startsWith("--") ? args[0] : null;
-  const outPath = resolve(getArg("--out", args) ?? positionalPath ?? ".agent-dna/dna.yaml");
+  const outPath = resolve(getArg("--out", args) ?? positionalPath ?? getDefaultDnaPath());
   await mkdir(dirname(outPath), { recursive: true });
   await writeFile(outPath, buildDocumentYaml(initialDnaDocument), "utf8");
   console.log(`DNA inicial creado en ${outPath}`);
@@ -177,9 +178,9 @@ export async function runCli(argv: string[]) {
   const rawFile = inputArgs[0] && !inputArgs[0].startsWith("--") ? inputArgs[0] : null;
   const rest = rawFile ? inputArgs.slice(1) : inputArgs;
 
-  if (!command || command === "help" || rest.includes("--help")) {
+  if (!command || command === "help" || rawCommand === "--help" || rawCommand === "-h" || rest.includes("--help")) {
     console.error(USAGE);
-    return 1;
+    return 0;
   }
 
   if (command === "init") {

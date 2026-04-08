@@ -35,6 +35,25 @@ describe("agent-dna-cli", () => {
     expect(written).toContain('version: "1.0"');
   });
 
+  it("usa la ruta global por defecto en init", async () => {
+    const tempHome = join(tmpdir(), `agent-dna-home-${Date.now()}-init`);
+    const dnaPath = join(tempHome, ".agent-dna", "dna.yaml");
+    process.env.HOME = tempHome;
+    process.env.USERPROFILE = tempHome;
+
+    await runCli(["init"]);
+
+    const written = await fs.readFile(dnaPath, "utf8");
+    expect(written).toContain('version: "1.0"');
+    expect(logSpy).toHaveBeenLastCalledWith(`DNA inicial creado en ${dnaPath}`);
+  });
+
+  it("muestra help global sin requerir DNA", async () => {
+    const exitCode = await runCli(["--help"]);
+    expect(exitCode).toBe(0);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Uso:"));
+  });
+
   it("falla con campo inexistente", async () => {
     await expect(runCli(["show", fixturePath, "--field", "identity.unknown"])).rejects.toThrow(
       "Campo no encontrado: identity.unknown"
