@@ -13,12 +13,32 @@ function filterChatRules(items: string[] | undefined) {
   return (items ?? []).filter((item) => !CHAT_EXCLUDE_PATTERN.test(item));
 }
 
+function humanizeLanguage(language: string | undefined, fallback: string) {
+  if (!language) {
+    return fallback;
+  }
+
+  return language === "es" ? "español latino" : language;
+}
+
+function humanizeTone(tone: string | undefined, fallback: string) {
+  const value = tone ?? fallback;
+  if (/direct, no fluff/i.test(value)) {
+    return "claro, directo y sin relleno";
+  }
+
+  return value;
+}
+
 function buildAboutText(document: Parameters<NonNullable<DnaAdapter["transform"]>>[0]["document"], state: Parameters<NonNullable<DnaAdapter["transform"]>>[0]["state"]) {
+  const activeProject = document.context?.active_project ?? state.product;
+  const role = document.identity.role === "Developer" ? "developer orientado a producto" : document.identity.role;
   return [
     `Mi nombre es ${document.identity.name}.`,
-    `Trabajo como ${document.identity.role}.`,
-    document.context?.active_project ? `Mi proyecto activo es ${document.context.active_project}.` : `Mi proyecto activo es ${state.project}.`,
-    document.stack.primary.length ? `Mi stack principal es ${document.stack.primary.join(", ")}.` : null
+    `Trabajo como ${role}.`,
+    activeProject ? `Actualmente estoy enfocado en ${activeProject}.` : null,
+    document.stack.primary.length ? `Mi stack principal es ${document.stack.primary.join(", ")}.` : null,
+    "Valoro respuestas claras, accionables y con buen criterio de negocio."
   ]
     .filter(Boolean)
     .join(" ");
@@ -29,10 +49,10 @@ function buildInstructionsText(document: Parameters<NonNullable<DnaAdapter["tran
   const neverRules = filterChatRules(document.rules?.never);
   const formattingRules = filterChatRules(document.rules?.formatting);
   const preferences = [
-    `- Idioma de salida: ${document.identity.output_language ?? state.languageLabel}`,
-    `- Tono: ${document.preferences?.tone ?? state.tone}`,
-    document.preferences?.explanation_depth ? `- Profundidad de explicacion: ${document.preferences.explanation_depth}` : null,
-    document.preferences?.ask_clarification ? `- Cuando falte contexto: ${document.preferences.ask_clarification}` : null
+    `- Idioma de salida: ${humanizeLanguage(document.identity.output_language, state.languageLabel)}`,
+    `- Tono: ${humanizeTone(document.preferences?.tone, state.tone)}`,
+    document.preferences?.explanation_depth ? `- Profundidad de explicacion: ${document.preferences.explanation_depth}` : "- Profundidad de explicacion: breve por defecto, mas profunda si hace falta",
+    document.preferences?.ask_clarification ? `- Cuando falte contexto: ${document.preferences.ask_clarification}` : "- Cuando falte contexto: preguntá solo lo mínimo necesario"
   ]
     .filter(Boolean)
     .join("\n");
@@ -42,13 +62,35 @@ function buildInstructionsText(document: Parameters<NonNullable<DnaAdapter["tran
     preferences,
     "",
     "### Siempre",
-    buildList(alwaysRules),
+    buildList(
+      alwaysRules.length
+        ? alwaysRules
+        : [
+            "Respondé en español latino.",
+            "Priorizá claridad, criterio y decisiones concretas.",
+            "Si falta contexto, decilo explícitamente."
+          ]
+    ),
     "",
     "### Nunca",
-    buildList(neverRules),
+    buildList(
+      neverRules.length
+        ? neverRules
+        : [
+            "No inventes contexto ni supuestos importantes.",
+            "No rellenes con texto innecesario."
+          ]
+    ),
     "",
     "### Formato",
-    buildList(formattingRules)
+    buildList(
+      formattingRules.length
+        ? formattingRules
+        : [
+            "Respuestas simples, humanas y directas.",
+            "Usá listas solo cuando realmente ayuden."
+          ]
+    )
   ]
     .filter(Boolean)
     .join("\n");

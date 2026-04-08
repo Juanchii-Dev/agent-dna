@@ -26,6 +26,8 @@ describe("adapters", () => {
     expect(output).not.toContain("service_role");
     expect(output).not.toContain("PowerShell");
     expect(output).toContain("Mi nombre es");
+    expect(output).toContain("español latino");
+    expect(output).toContain("claro, directo y sin relleno");
   });
 
   it("renderiza stdout como documento canonico yaml", () => {
