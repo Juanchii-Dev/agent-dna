@@ -25,6 +25,49 @@ With Agent DNA:
 - adapters generate the artifact each tool expects from the same source of truth
 - repo docs like `AGENTS.md` become derived outputs instead of the only place where rules live
 
+## Use it with other AIs
+
+Agent DNA is simple on purpose:
+
+1. import stable rules and context into a portable `dna.yaml`
+2. inject or export the artifact that each AI tool expects
+
+### Import a repo into portable identity
+
+If a repo already has `AGENTS.md` and `CONTEXT.md`, extract a portable base plus a small repo override:
+
+```powershell
+agent-dna import-repo .
+```
+
+That generates:
+
+- `.agent-dna/imports/<repo>.yaml` -> portable base DNA
+- `.agent-dna/imports/<repo>.override.yaml` -> repo-specific delta
+- `.agent-dna/imports/<repo>.import-report.md` -> accepted rules, ambiguous rules, and review notes
+
+### Export or inject for each AI
+
+Once the DNA exists, use the same source of truth everywhere:
+
+```powershell
+agent-dna inject --tool codex
+agent-dna inject --tool cursor
+agent-dna inject --tool claude
+```
+
+Current outputs:
+
+- `codex` -> `AGENTS.md`
+- `cursor` -> `.cursorrules`
+- `claude` -> `claude-system.txt`
+
+Short version:
+
+- import once from repo docs
+- keep `dna.yaml` as the source of truth
+- generate the right output for each AI when you need it
+
 ## Why it exists
 
 Most AI workflows still depend on fragmented memory:
@@ -262,6 +305,7 @@ Not implemented yet:
 - CLI package: [npmjs.com/package/agent-dna](https://www.npmjs.com/package/agent-dna)
 - Core package: [npmjs.com/package/@agent-dna/core](https://www.npmjs.com/package/@agent-dna/core)
 - Types package: [npmjs.com/package/@agent-dna/types](https://www.npmjs.com/package/@agent-dna/types)
+- Portability guide: [docs/PORTABILITY.md](./docs/PORTABILITY.md)
 
 ## Status
 
