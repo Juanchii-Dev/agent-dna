@@ -16,7 +16,7 @@ export type DnaAdapter = {
   version: string;
   fileName?: string;
   transform: (input: DnaAdapterInput) => string;
-  inject: (output: string) => Promise<void>;
+  inject: (output: string, input: DnaAdapterInput) => Promise<void>;
 };
 
 export type AgentDnaDocument = {

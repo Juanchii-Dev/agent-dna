@@ -25,6 +25,7 @@ describe("adapters", () => {
     expect(output).not.toContain("Use `any` type in TypeScript");
     expect(output).not.toContain("service_role");
     expect(output).not.toContain("PowerShell");
+    expect(output).toContain("Mi nombre es");
   });
 
   it("renderiza stdout como documento canonico yaml", () => {

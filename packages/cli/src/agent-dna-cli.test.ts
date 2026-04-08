@@ -155,10 +155,11 @@ describe("agent-dna-cli", () => {
 
     try {
       await runCli(["inject", fixturePath, "--tool", "chatgpt"]);
-      const written = await fs.readFile(join(tempDir, "chatgpt-personalization.md"), "utf8");
-      expect(written).toContain("# ChatGPT Personalization");
-      expect(written).toContain("## Acerca de ti");
-      expect(logSpy).toHaveBeenLastCalledWith(expect.stringContaining("chatgpt-personalization.md"));
+      const about = await fs.readFile(join(tempDir, "chatgpt-about.txt"), "utf8");
+      const instructions = await fs.readFile(join(tempDir, "chatgpt-instructions.txt"), "utf8");
+      expect(about).toContain("Mi nombre es");
+      expect(instructions).toContain("## Como quiero que respondas");
+      expect(logSpy).toHaveBeenLastCalledWith(expect.stringContaining("chatgpt-about.txt + chatgpt-instructions.txt"));
     } finally {
       process.chdir(previousCwd);
     }

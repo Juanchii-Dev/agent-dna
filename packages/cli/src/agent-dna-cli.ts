@@ -109,7 +109,7 @@ async function handleInject(filePath: string, args: string[]) {
     return;
   }
 
-  await adapter.inject(output);
+  await adapter.inject(output, { document, state });
   if (tool !== "stdout") {
     console.log(`${tool} inyectado en ${resolve(process.cwd(), adapter.fileName ?? tool)}`);
   }
