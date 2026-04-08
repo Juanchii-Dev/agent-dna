@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
+      "@tuwebai/core/browser": fileURLToPath(new URL("./packages/core/src/browser.ts", import.meta.url)),
       "@tuwebai/core": fileURLToPath(new URL("./packages/core/src/index.ts", import.meta.url)),
       "@tuwebai/types": fileURLToPath(new URL("./packages/types/src/index.ts", import.meta.url)),
       "@agent-dna/adapter-claude": fileURLToPath(new URL("./packages/adapter-claude/src/index.ts", import.meta.url)),

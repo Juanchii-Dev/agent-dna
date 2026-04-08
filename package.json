@@ -16,7 +16,7 @@
     "publish:check": "powershell -Command \"npm run build:packages; npm run pack:types; npm run pack:core; npm run pack:cli\"",
     "dev": "vite --config vite.config.ts",
     "typecheck": "npx tsc -b",
-    "build": "npm run build:packages; npx vite build --config vite.config.ts",
+    "build": "powershell -Command \"npm run build:packages; npx vite build --config vite.config.ts\"",
     "test": "npx vitest run",
     "preview": "vite preview --config vite.config.ts"
   },

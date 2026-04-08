@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { AgentDnaState, LayerId, PlatformPreview } from "@tuwebai/core";
+import type { AgentDnaState, LayerId, PlatformPreview } from "@tuwebai/core/browser";
 import type { ImportState } from "./app-config";
 import { CodeBlockActions } from "./components/code-block-actions";
 import { InputField } from "./components/input-field";

@@ -1,4 +1,4 @@
-import type { ImportIssue } from "@tuwebai/core";
+import type { ImportIssue } from "@tuwebai/core/browser";
 
 const pathToField: Record<string, string> = {
   "agent_dna.context.active_project": "project",
