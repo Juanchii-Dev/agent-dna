@@ -14,8 +14,59 @@ const NEVER_RULE_PATTERN =
   /\b(nunca|never|prohibido|no usar|no inventar|no exponer|no forzar|no mezclar|no asumir|no narrar|sin )\b/i;
 const ALWAYS_RULE_PATTERN = /\b(siempre|always|responder|usar |aplicar|mantener|preferir|corregir|trabajar)\b/i;
 
+function createEmptyDocument(): AgentDnaDocument {
+  return {
+    version: initialDnaDocument.version,
+    identity: {
+      name: "",
+      role: ""
+    },
+    stack: {
+      primary: []
+    }
+  };
+}
+
 function normalizeRule(rule: string) {
   return rule.replace(/`/g, "").replace(/\s+/g, " ").trim();
+}
+
+function canonicalRuleKey(rule: string) {
+  const normalized = normalizeRule(rule)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  if (/spanish|espanol|español/.test(normalized) && /latino|tildes|output|responder/.test(normalized)) {
+    return "language:es-latam";
+  }
+
+  if (/power(shell)?/.test(normalized) && /;/.test(normalized) && /&&/.test(normalized)) {
+    return "shell:semicolon";
+  }
+
+  if (/any/.test(normalized) && /type(script)?/.test(normalized)) {
+    return "typescript:no-any";
+  }
+
+  if (/schema|archivos|files/.test(normalized) && /audit|auditar/.test(normalized)) {
+    return "workflow:audit-real-sources";
+  }
+
+  return normalized;
+}
+
+function dedupeRules(rules: string[]) {
+  const seen = new Set<string>();
+  return rules.filter((rule) => {
+    const key = canonicalRuleKey(rule);
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
 }
 
 function extractPortableRules(content: string | null) {
@@ -31,8 +82,8 @@ function extractPortableRules(content: string | null) {
     .filter((line) => line.length > 0 && !SKIP_RULE_PATTERN.test(line));
 
   return {
-    always: rules.filter((rule) => ALWAYS_RULE_PATTERN.test(rule) && !NEVER_RULE_PATTERN.test(rule)),
-    never: rules.filter((rule) => NEVER_RULE_PATTERN.test(rule))
+    always: dedupeRules(rules.filter((rule) => ALWAYS_RULE_PATTERN.test(rule) && !NEVER_RULE_PATTERN.test(rule))),
+    never: dedupeRules(rules.filter((rule) => NEVER_RULE_PATTERN.test(rule)))
   };
 }
 
@@ -55,40 +106,106 @@ function detectActiveProject(content: string | null, fallback: string) {
 
 function buildImportedBaseDocument(name: string, role: string, agentsContent: string | null): AgentDnaDocument {
   const rules = extractPortableRules(agentsContent);
-  return {
-    ...initialDnaDocument,
-    identity: {
-      ...initialDnaDocument.identity,
-      name,
-      role,
-      output_language: detectOutputLanguage(agentsContent)
-    },
-    rules: {
-      always: rules.always,
-      never: rules.never,
-      formatting: initialDnaDocument.rules?.formatting ?? []
-    },
-    custom: {
-      imported_from: "repo-docs"
-    }
+  const document = createEmptyDocument();
+
+  document.identity = {
+    name,
+    role,
+    output_language: detectOutputLanguage(agentsContent)
   };
+  document.rules = {
+    always: rules.always,
+    never: rules.never
+  };
+  document.custom = {
+    imported_from: "repo-docs"
+  };
+
+  return document;
+}
+
+function removeEmptySections(document: AgentDnaDocument) {
+  const cleaned = structuredClone(document) as AgentDnaDocument & { custom?: Record<string, unknown> };
+
+  if (cleaned.rules && (!cleaned.rules.always?.length && !cleaned.rules.never?.length && !cleaned.rules.formatting?.length)) {
+    delete cleaned.rules;
+  }
+
+  if (cleaned.context && !Object.values(cleaned.context).some(Boolean)) {
+    delete cleaned.context;
+  }
+
+  if (!cleaned.stack.primary.length && !cleaned.stack.backend?.length && !cleaned.stack.tools?.length && !cleaned.stack.avoid?.length) {
+    cleaned.stack = { primary: [] };
+  }
+
+  if (cleaned.custom && Object.keys(cleaned.custom).length === 0) {
+    delete cleaned.custom;
+  }
+
+  return cleaned;
 }
 
 function buildImportedOverrideDocument(projectName: string, repoName: string, contextContent: string | null): AgentDnaDocument {
-  return {
-    ...initialDnaDocument,
-    identity: {
-      ...initialDnaDocument.identity,
-      name: repoName,
-      role: "Project Override"
-    },
-    context: {
-      active_project: detectActiveProject(contextContent, projectName)
-    },
-    custom: {
-      imported_from_repo: repoName
-    }
+  const document = createEmptyDocument();
+  document.context = {
+    active_project: detectActiveProject(contextContent, projectName)
   };
+  document.custom = {
+    imported_from_repo: repoName
+  };
+
+  return removeEmptySections(document);
+}
+
+function buildReviewRequired(baseDocument: AgentDnaDocument, overrideDocument: AgentDnaDocument) {
+  const reviewRequired: string[] = [];
+
+  if (!baseDocument.rules?.always?.length && !baseDocument.rules?.never?.length) {
+    reviewRequired.push("No se detectaron reglas portables suficientes en AGENTS.md");
+  }
+
+  if (!overrideDocument.context?.active_project) {
+    reviewRequired.push("No se detecto active_project confiable para el override del repo");
+  }
+
+  return reviewRequired;
+}
+
+function attachReviewRequired(baseDocument: AgentDnaDocument, overrideDocument: AgentDnaDocument) {
+  const reviewRequired = buildReviewRequired(baseDocument, overrideDocument);
+  if (!reviewRequired.length) {
+    return { baseDocument, overrideDocument };
+  }
+
+  return {
+    baseDocument: {
+      ...baseDocument,
+      custom: {
+        ...(baseDocument.custom ?? {}),
+        review_required: reviewRequired
+      }
+    },
+    overrideDocument
+  };
+}
+
+function ensureNoBaseContracts(document: AgentDnaDocument) {
+  const cleaned = structuredClone(document);
+  delete cleaned.db_contracts;
+  delete cleaned.projects;
+  delete cleaned.preferences;
+  return cleaned;
+}
+
+function ensureDeltaOverride(document: AgentDnaDocument) {
+  const cleaned = structuredClone(document);
+  delete cleaned.identity;
+  delete cleaned.rules;
+  delete cleaned.projects;
+  delete cleaned.preferences;
+  delete cleaned.db_contracts;
+  return removeEmptySections(cleaned);
 }
 
 export async function importRepoDocuments({ args, target }: ImportRepoInput) {
@@ -103,12 +220,13 @@ export async function importRepoDocuments({ args, target }: ImportRepoInput) {
   const agentsContent = await readOptionalFile(resolve(repoPath, "AGENTS.md"));
   const contextContent = await readOptionalFile(resolve(repoPath, "CONTEXT.md"));
 
-  const baseDocument = buildImportedBaseDocument(name, role, agentsContent);
-  const overrideDocument = buildImportedOverrideDocument(project, repoName, contextContent);
+  const baseDocument = ensureNoBaseContracts(buildImportedBaseDocument(name, role, agentsContent));
+  const overrideDocument = ensureDeltaOverride(buildImportedOverrideDocument(project, repoName, contextContent));
+  const result = attachReviewRequired(baseDocument, overrideDocument);
 
   await mkdir(dirname(outPath), { recursive: true });
-  await writeFile(outPath, buildDocumentYaml(baseDocument), "utf8");
-  await writeFile(overrideOutPath, buildDocumentYaml(overrideDocument), "utf8");
+  await writeFile(outPath, buildDocumentYaml(result.baseDocument), "utf8");
+  await writeFile(overrideOutPath, buildDocumentYaml(result.overrideDocument), "utf8");
 
   return { outPath, overrideOutPath };
 }

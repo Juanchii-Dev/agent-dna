@@ -152,7 +152,7 @@ describe("agent-dna-cli", () => {
     const tempRepo = await fs.mkdtemp(join(tmpdir(), "agent-dna-repo-"));
     await fs.writeFile(
       join(tempRepo, "AGENTS.md"),
-      "# AGENTS\n- responder siempre en español latino\n- nunca usar any en TypeScript\n- usar PowerShell con ;\n",
+      "# AGENTS\n- responder siempre en español latino\n- Output in Latino Spanish with correct tildes\n- nunca usar any en TypeScript\n- Use `any` type in TypeScript\n- usar PowerShell con ;\n",
       "utf8"
     );
     await fs.writeFile(join(tempRepo, "CONTEXT.md"), "active_project: Pulse\n", "utf8");
@@ -165,6 +165,10 @@ describe("agent-dna-cli", () => {
       "utf8"
     );
     expect(baseFile).toContain("responder siempre en español latino");
+    expect(baseFile).not.toContain("Output in Latino Spanish with correct tildes");
+    expect(baseFile).not.toContain("db_contracts:");
     expect(overrideFile).toContain("active_project: Pulse");
+    expect(overrideFile).not.toContain("identity:");
+    expect(overrideFile).not.toContain("rules:");
   });
 });
