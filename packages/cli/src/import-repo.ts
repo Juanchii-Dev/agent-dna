@@ -23,6 +23,19 @@ const SKIP_RULE_PATTERN =
 const NEVER_RULE_PATTERN =
   /\b(nunca|never|prohibido|no usar|no inventar|no exponer|no forzar|no mezclar|no asumir|no narrar|sin )\b/i;
 const ALWAYS_RULE_PATTERN = /\b(siempre|always|responder|usar |aplicar|mantener|preferir|corregir|trabajar)\b/i;
+const MOJIBAKE_REPAIRS: Array<[RegExp, string]> = [
+  [/espaÃ±ol/gi, "español"],
+  [/Ã¡/g, "á"],
+  [/Ã©/g, "é"],
+  [/Ã­/g, "í"],
+  [/Ã³/g, "ó"],
+  [/Ãº/g, "ú"],
+  [/Ã±/g, "ñ"],
+  [/â€œ/g, "“"],
+  [/â€/g, "”"],
+  [/â€˜/g, "‘"],
+  [/â€™/g, "’"]
+];
 
 function createEmptyDocument(): AgentDnaDocument {
   return {
@@ -38,7 +51,12 @@ function createEmptyDocument(): AgentDnaDocument {
 }
 
 function normalizeRule(rule: string) {
-  return rule.replace(/`/g, "").replace(/\s+/g, " ").trim();
+  let normalized = rule;
+  for (const [pattern, replacement] of MOJIBAKE_REPAIRS) {
+    normalized = normalized.replace(pattern, replacement);
+  }
+
+  return normalized.replace(/`/g, "").replace(/\s+/g, " ").trim();
 }
 
 function canonicalRuleKey(rule: string) {
@@ -122,7 +140,7 @@ function extractCandidateRules(content: string | null, sourceFile: string) {
     }
 
     if (line.startsWith("#")) {
-      currentSection = line.replace(/^#+\s*/, "").trim() || "root";
+      currentSection = normalizeRule(line.replace(/^#+\s*/, "").trim()) || "root";
       continue;
     }
 
@@ -184,7 +202,7 @@ function detectOutputLanguage(content: string | null) {
     return undefined;
   }
 
-  return /español|espanol/i.test(content) ? "es" : undefined;
+  return /español|espanol/i.test(normalizeRule(content)) ? "es" : undefined;
 }
 
 function detectActiveProject(content: string | null, fallback: string) {
@@ -210,16 +228,7 @@ function buildImportedBaseDocument(name: string, role: string, agentsContent: st
     never: rules.never
   };
   document.custom = {
-    imported_from: "repo-docs",
-    import_candidates: candidates.map((candidate) => ({
-      confidence: candidate.confidence,
-      portability: candidate.portability,
-      review_required: candidate.reviewRequired,
-      source_file: candidate.sourceFile,
-      source_section: candidate.sourceSection,
-      target: candidate.target,
-      text: candidate.text
-    }))
+    imported_from: "repo-docs"
   };
 
   return document;

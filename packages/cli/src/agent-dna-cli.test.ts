@@ -152,7 +152,7 @@ describe("agent-dna-cli", () => {
     const tempRepo = await fs.mkdtemp(join(tmpdir(), "agent-dna-repo-"));
     await fs.writeFile(
       join(tempRepo, "AGENTS.md"),
-      "# AGENTS\n- responder siempre en español latino\n- Output in Latino Spanish with correct tildes\n- nunca usar any en TypeScript\n- Use `any` type in TypeScript\n- usar PowerShell con ;\n",
+      "# AGENTS\n- responder siempre en espaÃ±ol latino\n- Output in Latino Spanish with correct tildes\n- nunca usar any en TypeScript\n- Use `any` type in TypeScript\n- usar PowerShell con ;\n- no justificar con â€œpor seguridadâ€ sin riesgo concreto\n",
       "utf8"
     );
     await fs.writeFile(join(tempRepo, "CONTEXT.md"), "active_project: Pulse\n", "utf8");
@@ -170,13 +170,15 @@ describe("agent-dna-cli", () => {
     );
     expect(baseFile).toContain("responder siempre en español latino");
     expect(baseFile).not.toContain("db_contracts:");
-    expect(baseFile).toContain("import_candidates:");
+    expect(baseFile).not.toContain("import_candidates:");
+    expect(baseFile).toContain("“por seguridad”");
     expect(overrideFile).toContain("active_project: Pulse");
     expect(overrideFile).not.toContain("identity:");
     expect(overrideFile).not.toContain("rules:");
     expect(reportFile).toContain("# Import Report");
     expect(reportFile).toContain("## Accepted");
     expect(reportFile).toContain("Output in Latino Spanish with correct tildes");
+    expect(reportFile).toContain("“por seguridad”");
     expect(reportFile).toContain("AGENTS.md > AGENTS");
   });
 });
