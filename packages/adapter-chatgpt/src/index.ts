@@ -6,18 +6,26 @@ function buildList(items: string[] | undefined, empty = "- none") {
   return items?.length ? items.map((item) => `- ${item}`).join("\n") : empty;
 }
 
+const CHAT_EXCLUDE_PATTERN =
+  /\b(any|ts-ignore|typescript|cursor|codex|claude|powershell|&&|frontend|service_role|agentes|cursorrules|schemas?|endpoints?|rutas?|repo|rg global)\b/i;
+
+function filterChatRules(items: string[] | undefined) {
+  return (items ?? []).filter((item) => !CHAT_EXCLUDE_PATTERN.test(item));
+}
+
 export const chatgptAdapter: DnaAdapter = {
   name: "chatgpt",
   version: "1.0.0",
   fileName: "chatgpt-personalization.md",
   transform: ({ document, state }) => {
+    const alwaysRules = filterChatRules(document.rules?.always);
+    const neverRules = filterChatRules(document.rules?.never);
+    const formattingRules = filterChatRules(document.rules?.formatting);
     const about = [
       `Mi nombre es ${document.identity.name}.`,
       `Trabajo como ${document.identity.role}.`,
       document.context?.active_project ? `Mi proyecto activo es ${document.context.active_project}.` : null,
-      document.stack.primary.length ? `Mi stack principal es ${document.stack.primary.join(", ")}.` : null,
-      document.stack.backend?.length ? `Backend o servicios: ${document.stack.backend.join(", ")}.` : null,
-      document.stack.tools?.length ? `Herramientas frecuentes: ${document.stack.tools.join(", ")}.` : null
+      document.stack.primary.length ? `Mi stack principal es ${document.stack.primary.join(", ")}.` : null
     ]
       .filter(Boolean)
       .join(" ");
@@ -41,13 +49,13 @@ export const chatgptAdapter: DnaAdapter = {
       preferences,
       "",
       "### Siempre",
-      buildList(document.rules?.always),
+      buildList(alwaysRules),
       "",
       "### Nunca",
-      buildList(document.rules?.never),
+      buildList(neverRules),
       "",
       "### Formato",
-      buildList(document.rules?.formatting),
+      buildList(formattingRules),
       "",
       "## Nota",
       "Usa estas secciones para completar la personalizacion persistente de ChatGPT en lugar de pegar contexto al inicio de cada chat."

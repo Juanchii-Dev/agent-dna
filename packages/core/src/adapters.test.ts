@@ -22,6 +22,9 @@ describe("adapters", () => {
     expect(output).toContain("# ChatGPT Personalization");
     expect(output).toContain("## Acerca de ti");
     expect(output).toContain("## Como quiero que respondas");
+    expect(output).not.toContain("Use `any` type in TypeScript");
+    expect(output).not.toContain("service_role");
+    expect(output).not.toContain("PowerShell");
   });
 
   it("renderiza stdout como documento canonico yaml", () => {
