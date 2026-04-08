@@ -5,5 +5,7 @@ export const stdoutAdapter: DnaAdapter = {
   name: "stdout",
   version: "1.0.0",
   transform: ({ document }) => buildDocumentYaml(document),
-  inject: async () => undefined
+  inject: async (output) => {
+    process.stdout.write(output);
+  }
 };

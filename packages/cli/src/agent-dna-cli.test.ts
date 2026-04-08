@@ -112,4 +112,19 @@ describe("agent-dna-cli", () => {
 
     expect(logSpy).toHaveBeenLastCalledWith(expect.stringContaining("identity.role"));
   });
+
+  it("inyecta AGENTS.md real en el directorio actual", async () => {
+    const tempDir = await fs.mkdtemp(join(tmpdir(), "agent-dna-inject-"));
+    const previousCwd = process.cwd();
+    process.chdir(tempDir);
+
+    try {
+      await runCli(["inject", fixturePath, "--tool", "codex"]);
+      const written = await fs.readFile(join(tempDir, "AGENTS.md"), "utf8");
+      expect(written).toContain("Protocolo Core Agent DNA");
+      expect(logSpy).toHaveBeenLastCalledWith(expect.stringContaining("AGENTS.md"));
+    } finally {
+      process.chdir(previousCwd);
+    }
+  });
 });

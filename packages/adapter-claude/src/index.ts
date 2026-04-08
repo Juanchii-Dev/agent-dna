@@ -1,3 +1,5 @@
+import { mkdir, writeFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
 import type { DnaAdapter } from "../../types/src/index";
 
 export const claudeAdapter: DnaAdapter = {
@@ -48,5 +50,9 @@ export const claudeAdapter: DnaAdapter = {
       .filter(Boolean)
       .join("\n");
   },
-  inject: async () => undefined
+  inject: async (output) => {
+    const targetPath = resolve(process.cwd(), "claude-system.txt");
+    await mkdir(dirname(targetPath), { recursive: true });
+    await writeFile(targetPath, output, "utf8");
+  }
 };

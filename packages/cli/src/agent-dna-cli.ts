@@ -101,7 +101,15 @@ async function handleInject(filePath: string, args: string[]) {
   const adapter = getAdapter(tool);
   const output = adapter.transform({ document, state });
   const outPath = getArg("--out", args);
-  await writeOutput(outPath, output, `${tool} exportado en`);
+  if (outPath) {
+    await writeOutput(outPath, output, `${tool} exportado en`);
+    return;
+  }
+
+  await adapter.inject(output);
+  if (tool !== "stdout") {
+    console.log(`${tool} inyectado en ${resolve(process.cwd(), adapter.fileName ?? tool)}`);
+  }
 }
 
 async function handleOverride(target: string | null, args: string[]) {
