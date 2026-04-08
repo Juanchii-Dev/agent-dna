@@ -1,5 +1,5 @@
 {
-  "name": "@agent-dna/types",
+  "name": "@tuwebai/types",
   "version": "0.1.0",
   "description": "Shared TypeScript types for the Agent DNA open standard.",
   "keywords": ["agent-dna", "ai", "types", "schema", "developer-tools"],

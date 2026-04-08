@@ -13,8 +13,8 @@
     "moduleResolution": "Bundler",
     "baseUrl": ".",
     "paths": {
-      "@agent-dna/core": ["packages/core/src/index.ts"],
-      "@agent-dna/types": ["packages/types/src/index.ts"],
+      "@tuwebai/core": ["packages/core/src/index.ts"],
+      "@tuwebai/types": ["packages/types/src/index.ts"],
       "@agent-dna/adapter-claude": ["packages/adapter-claude/src/index.ts"],
       "@agent-dna/adapter-codex": ["packages/adapter-codex/src/index.ts"],
       "@agent-dna/adapter-cursor": ["packages/adapter-cursor/src/index.ts"],

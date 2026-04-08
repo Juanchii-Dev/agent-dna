@@ -7,8 +7,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@agent-dna/core": fileURLToPath(new URL("./packages/core/src/index.ts", import.meta.url)),
-      "@agent-dna/types": fileURLToPath(new URL("./packages/types/src/index.ts", import.meta.url)),
+      "@tuwebai/core": fileURLToPath(new URL("./packages/core/src/index.ts", import.meta.url)),
+      "@tuwebai/types": fileURLToPath(new URL("./packages/types/src/index.ts", import.meta.url)),
       "@agent-dna/adapter-claude": fileURLToPath(new URL("./packages/adapter-claude/src/index.ts", import.meta.url)),
       "@agent-dna/adapter-codex": fileURLToPath(new URL("./packages/adapter-codex/src/index.ts", import.meta.url)),
       "@agent-dna/adapter-cursor": fileURLToPath(new URL("./packages/adapter-cursor/src/index.ts", import.meta.url)),

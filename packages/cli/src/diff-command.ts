@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { parseImportedDocument, parseOverrideDocument } from "@agent-dna/core";
+import { parseImportedDocument, parseOverrideDocument } from "@tuwebai/core";
 import { getDefaultDnaPath, readOptionalFile, resolveOverridePath } from "./cli-shared";
 
 type DiffEntry = {

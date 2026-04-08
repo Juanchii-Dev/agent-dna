@@ -1,5 +1,5 @@
 {
-  "name": "@agent-dna/core",
+  "name": "@tuwebai/core",
   "version": "0.1.0",
   "description": "Core parser, schema, resolver and generators for the Agent DNA standard.",
   "keywords": ["agent-dna", "ai", "cli", "schema", "developer-tools"],
@@ -33,7 +33,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@agent-dna/types": "0.1.0"
+    "@tuwebai/types": "0.1.0"
   },
   "scripts": {
     "build": "npx tsup src/index.ts --format esm --dts --clean --tsconfig ../../tsconfig.app.json"

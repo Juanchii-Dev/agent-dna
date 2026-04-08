@@ -10,8 +10,8 @@
   "scripts": {
     "cli": "npx tsx packages/cli/src/agent-dna-cli.ts",
     "build:packages": "npm run build --workspaces --if-present",
-    "pack:types": "npm pack --dry-run --workspace @agent-dna/types",
-    "pack:core": "npm pack --dry-run --workspace @agent-dna/core",
+    "pack:types": "npm pack --dry-run --workspace @tuwebai/types",
+    "pack:core": "npm pack --dry-run --workspace @tuwebai/core",
     "pack:cli": "npm pack --dry-run --workspace agent-dna",
     "publish:check": "powershell -Command \"npm run build:packages; npm run pack:types; npm run pack:core; npm run pack:cli\"",
     "dev": "vite --config vite.config.ts",

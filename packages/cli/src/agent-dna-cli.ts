@@ -9,8 +9,8 @@ import {
   getAdapter,
   initialDnaDocument,
   mapDocumentToState,
-} from "@agent-dna/core";
-import type { DnaAdapterName } from "@agent-dna/core";
+} from "@tuwebai/core";
+import type { DnaAdapterName } from "@tuwebai/core";
 import {
   getActiveOverridePath,
   getArg,

@@ -33,7 +33,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@agent-dna/core": "0.1.0",
+    "@tuwebai/core": "0.1.0",
     "yaml": "^2.8.1"
   },
   "scripts": {
