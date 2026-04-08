@@ -8,7 +8,10 @@ describe("generators", () => {
   });
 
   it("genera AGENTS con contexto activo", () => {
-    expect(buildAgentsPreview(initialDna)).toContain("## Contexto activo");
+    const preview = buildAgentsPreview(initialDna);
+    expect(preview).toContain("## Contexto activo");
+    expect(preview).toContain("## NUNCA hacer");
+    expect(preview).toContain("NEVER:");
   });
 
   it("genera json parseable", () => {

@@ -13,7 +13,6 @@ export function buildAgentsPreview(dna: AgentDnaState) {
 - responder siempre en ${dna.languageLabel}
 - ${dna.languageRule}
 - ${dna.alwaysRule}
-- no romper estas reglas: ${dna.neverRule}
 
 ## Contexto activo
 
@@ -22,9 +21,13 @@ export function buildAgentsPreview(dna: AgentDnaState) {
 - stack: ${dna.stack}
 - negocio: ${dna.business}
 
+## NUNCA hacer
+
+- NEVER: ${dna.neverRule}
+- NEVER: ${dna.boundaryRule}
+
 ## Restricciones duras
 
-- ${dna.boundaryRule}
 - politica de secretos: ${dna.secretPolicy}
 - modo de aprobacion: ${dna.approvalMode}`;
 }
