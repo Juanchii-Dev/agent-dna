@@ -1,6 +1,6 @@
 {
   "name": "agent-dna",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "CLI for validating, exporting and injecting Agent DNA across AI tools.",
   "keywords": [
     "agent-dna",
@@ -33,7 +33,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@agent-dna/core": "0.1.8",
+    "@agent-dna/core": "0.1.9",
     "yaml": "^2.8.1"
   },
   "scripts": {
