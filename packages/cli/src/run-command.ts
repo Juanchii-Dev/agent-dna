@@ -1,4 +1,6 @@
 import { spawn } from "node:child_process";
+import { access } from "node:fs/promises";
+import { resolve } from "node:path";
 import { buildDocumentJson, mapDocumentToState } from "@tuwebai/core";
 import { getArg, getTool, loadResolvedDocument, resolveBaseDnaPath } from "./cli-shared";
 
@@ -24,6 +26,32 @@ function getExecutableArgs(args: string[]) {
   return commandArgs;
 }
 
+function isScriptInterpreter(command: string) {
+  return ["node", "node.exe", "tsx", "tsx.cmd", "bun", "bun.exe", "python", "python.exe", "python3"].includes(command);
+}
+
+function shouldSkipScriptCheck(scriptArg: string) {
+  return scriptArg.startsWith("-");
+}
+
+async function assertScriptExists(command: string, commandArgs: string[]) {
+  if (!isScriptInterpreter(command) || commandArgs.length === 0) {
+    return;
+  }
+
+  const scriptArg = commandArgs[0];
+  if (shouldSkipScriptCheck(scriptArg)) {
+    return;
+  }
+
+  const scriptPath = resolve(process.cwd(), scriptArg);
+  try {
+    await access(scriptPath);
+  } catch {
+    throw new Error(`Archivo de script no encontrado: ${scriptPath}`);
+  }
+}
+
 export async function runWrappedCommand({ args }: RunCommandInput) {
   const tool = getTool(args, "stdout");
   const dnaPath = await resolveBaseDnaPath(getArg("--dna", args));
@@ -46,6 +74,7 @@ export async function runWrappedCommand({ args }: RunCommandInput) {
   const state = mapDocumentToState(document);
   const injection = buildDocumentJson(document);
   const [command, ...commandArgs] = getExecutableArgs(args);
+  await assertScriptExists(command, commandArgs);
 
   await new Promise<void>((resolvePromise, rejectPromise) => {
     const child = spawn(command, commandArgs, {
@@ -59,7 +88,14 @@ export async function runWrappedCommand({ args }: RunCommandInput) {
       }
     });
 
-    child.on("error", rejectPromise);
+    child.on("error", (error) => {
+      if ("code" in error && error.code === "ENOENT") {
+        rejectPromise(new Error(`Comando no encontrado: ${command}`));
+        return;
+      }
+
+      rejectPromise(error);
+    });
     child.on("exit", (code) => {
       if (code && code !== 0) {
         rejectPromise(new Error(`Comando falló con exit code ${code}`));
