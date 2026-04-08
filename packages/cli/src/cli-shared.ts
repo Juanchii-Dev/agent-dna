@@ -16,6 +16,7 @@ export const USAGE = `uso: agent-dna <comando> [argumentos]
 
 Comandos principales
   init [ruta]                 crea ~/.agent-dna/dna.yaml o la ruta indicada
+  import-repo [ruta]          extrae DNA portable desde AGENTS.md y CONTEXT.md
   show [archivo]              muestra el DNA resuelto
   validate [archivo]          valida el DNA contra el schema
   export [archivo]            exporta el DNA en yaml o json
@@ -44,6 +45,7 @@ Opciones
 
 Ejemplos
   agent-dna init
+  agent-dna import-repo .
   agent-dna show --field identity.name --format json
   agent-dna inject --tool codex
   agent-dna override pulse

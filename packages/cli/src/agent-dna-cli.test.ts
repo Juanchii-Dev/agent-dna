@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { promises as fs } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runCli } from "./agent-dna-cli";
 
@@ -146,5 +146,25 @@ describe("agent-dna-cli", () => {
     } finally {
       process.chdir(previousCwd);
     }
+  });
+
+  it("importa AGENTS y CONTEXT a archivos portables", async () => {
+    const tempRepo = await fs.mkdtemp(join(tmpdir(), "agent-dna-repo-"));
+    await fs.writeFile(
+      join(tempRepo, "AGENTS.md"),
+      "# AGENTS\n- responder siempre en español latino\n- nunca usar any en TypeScript\n- usar PowerShell con ;\n",
+      "utf8"
+    );
+    await fs.writeFile(join(tempRepo, "CONTEXT.md"), "active_project: Pulse\n", "utf8");
+
+    await runCli(["import-repo", tempRepo]);
+
+    const baseFile = await fs.readFile(join(tempRepo, ".agent-dna", "imports", `${basename(tempRepo)}.yaml`), "utf8");
+    const overrideFile = await fs.readFile(
+      join(tempRepo, ".agent-dna", "imports", `${basename(tempRepo)}.override.yaml`),
+      "utf8"
+    );
+    expect(baseFile).toContain("responder siempre en español latino");
+    expect(overrideFile).toContain("active_project: Pulse");
   });
 });

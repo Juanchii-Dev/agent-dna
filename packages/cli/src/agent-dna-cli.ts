@@ -25,6 +25,7 @@ import {
 } from "./cli-shared";
 import { buildDiffOutput } from "./diff-command";
 import { buildGitHookSnippet, installGitHook } from "./git-hooks";
+import { importRepoDocuments } from "./import-repo";
 import { runWrappedCommand } from "./run-command";
 import { buildBashHookSnippet, buildPowerShellHookSnippet, installBashHook, installPowerShellHook } from "./shell-hooks";
 
@@ -34,6 +35,7 @@ type Command =
   | "diff"
   | "help"
   | "hook"
+  | "import-repo"
   | "init"
   | "inject"
   | "override"
@@ -172,6 +174,12 @@ async function handleHook(target: string | null, args: string[]) {
   throw new Error("Solo se soporta powershell, bash o git en este slice");
 }
 
+async function handleImportRepo(target: string | null, args: string[]) {
+  const result = await importRepoDocuments({ args, target });
+  console.log(`DNA portable creado en ${result.outPath}`);
+  console.log(`Override portable creado en ${result.overrideOutPath}`);
+}
+
 export async function runCli(argv: string[]) {
   const [rawCommand, ...inputArgs] = argv;
   const command = rawCommand as Command | undefined;
@@ -200,6 +208,11 @@ export async function runCli(argv: string[]) {
 
   if (command === "hook") {
     await handleHook(rawFile, rest);
+    return 0;
+  }
+
+  if (command === "import-repo") {
+    await handleImportRepo(rawFile, rest);
     return 0;
   }
 
