@@ -1,99 +1,109 @@
-# 🧬 Agent DNA
+# Agent DNA
 
-> **Open standard for portable AI identity.**
+> Portable AI identity for developers. Local-first, adapter-based, open by default.
 
-![Status](https://img.shields.io/badge/status-active%20buildout-0f766e)
-![Schema](https://img.shields.io/badge/schema-1.0-111827)
-![Mode](https://img.shields.io/badge/local--first-yes-2563eb)
-![License](https://img.shields.io/badge/license-open%20standard-f59e0b)
+[![npm version](https://img.shields.io/npm/v/agent-dna?color=0f766e)](https://www.npmjs.com/package/agent-dna)
+[![npm core](https://img.shields.io/npm/v/%40tuwebai%2Fcore?color=111827)](https://www.npmjs.com/package/@tuwebai/core)
+[![npm types](https://img.shields.io/npm/v/%40tuwebai%2Ftypes?color=2563eb)](https://www.npmjs.com/package/@tuwebai/types)
+[![License: MIT](https://img.shields.io/badge/license-MIT-f59e0b)](./LICENSE)
 
-Agent DNA turns developer identity, hard rules, stack, active context, project contracts, and communication preferences into a local-first document that can be validated, merged, filtered, and injected into different AI tools.
+Agent DNA defines a single developer document that can be validated, merged, filtered, exported, and injected into multiple AI tools without rebuilding context from zero on every session.
 
-This repository is the implementation starter for that standard.
+This repo is the current open-source implementation of that standard.
 
-## ✨ Why this matters
+## Why it exists
 
-Every AI tool starts with partial memory.
+Most AI workflows still depend on fragmented memory:
 
-One assistant knows your stack but not your guardrails. Another knows the repo but not your output rules. Another remembers your tone but not your database contracts. Agent DNA solves that fragmentation with one portable source of truth.
+- one tool knows your stack but not your hard rules
+- another knows the repo but not your output language
+- another remembers your tone but not your project contracts
 
-## 🧱 What this repo includes
+Agent DNA turns that into one portable source of truth:
 
-### `packages/core`
-- document model
-- JSON Schema
-- parser and validator
-- override merge engine
-- `.dnaignore` filtering
-- adapter registry
+- identity
+- stack
+- rules
+- active context
+- project registry
+- database contracts
+- communication preferences
 
-### `packages/cli`
-- local CLI for `init`, `show`, `validate`, `export`, and `inject`
+## What is already real in this repo
 
-### `packages/adapter-*`
-- `adapter-claude`
-- `adapter-codex`
-- `adapter-cursor`
-- `adapter-stdout`
+### Core standard
 
-### `apps/demo`
-- visual demo for exploring the format and generated outputs
+- `version: "1.0"` document model
+- JSON Schema validation
+- backward-compatible import for the legacy `agent_dna.*` shape
+- normalization and resolved document output
+- deep-merge override system
+- `.dnaignore` filtering per tool
 
-### `examples`
-- sample DNA
-- real override example
-- `.dnaignore` example
+### CLI
 
-## 🎯 Current scope
+- `agent-dna init`
+- `agent-dna show`
+- `agent-dna validate`
+- `agent-dna export`
+- `agent-dna inject`
+- `agent-dna override`
+- `agent-dna diff`
+- `agent-dna run`
+- `agent-dna hook`
 
-### Implemented now
+### Adapters
 
-- spec-aligned `version: "1.0"` DNA document
-- backward-compatible import of the legacy `agent_dna.*` shape
-- local-first parsing and validation
-- deep merge overrides by file
-- tool filtering through `.dnaignore`
-- adapter-based export and injection foundation
-- monorepo-style structure aligned to the public spec
+- `codex` -> writes `AGENTS.md`
+- `cursor` -> writes `.cursorrules`
+- `claude` -> writes `claude-system.txt`
+- `stdout` -> prints raw output
 
-### Not implemented yet
+### Published packages
 
-- remote sync
-- team registry
-- CI actions
-- IDE extensions
-- hosted marketplace
+- [`agent-dna`](https://www.npmjs.com/package/agent-dna)
+- [`@tuwebai/core`](https://www.npmjs.com/package/@tuwebai/core)
+- [`@tuwebai/types`](https://www.npmjs.com/package/@tuwebai/types)
 
-## 🗂️ Repository structure
+## Repo structure
 
 ```text
-packages/
-  adapter-claude/
-  adapter-codex/
-  adapter-cursor/
-  adapter-stdout/
-  cli/
-  core/
 apps/
-  demo/
+  demo/                     # visual demo for the format and outputs
+
 examples/
+  agent-dna.yaml            # sample DNA document
+  overrides/
+    pulse-enterprise.yaml   # sample override
+  .dnaignore                # sample field filtering
+
+packages/
+  adapter-claude/           # claude output adapter
+  adapter-codex/            # codex -> AGENTS.md
+  adapter-cursor/           # cursor -> .cursorrules
+  adapter-stdout/           # stdout adapter
+  cli/                      # published CLI package
+  core/                     # parser, schema, resolver, generators
+  types/                    # shared public types
 ```
 
-## 🚀 Quick start
+## Quick start
 
-Install dependencies:
+### Install globally
+
+```powershell
+npm install -g agent-dna
+agent-dna --help
+```
+
+### Install locally for development
 
 ```powershell
 npm install
-```
-
-Run the demo:
-
-```powershell
 npm run dev
 ```
 
-Run quality checks:
+### Quality checks
 
 ```powershell
 npm run test
@@ -101,101 +111,144 @@ npm run typecheck
 npm run build
 ```
 
-## 🛠️ CLI
+## Local-first runtime
 
-Default local-first flow:
-
-```powershell
-npm run cli -- init
-npm run cli -- validate
-npm run cli -- show --field identity
-```
-
-That path resolves to:
+By default, the CLI works against this filesystem layout:
 
 ```text
-~/.agent-dna/dna.yaml
-~/.agent-dna/overrides/
-~/.agent-dna/active-override
+~/.agent-dna/
+├── dna.yaml
+├── overrides/
+├── active-override
+└── .dnaignore
 ```
 
-Create a starter DNA:
+That means the default workflow is global, not repo-bound.
+
+## CLI usage
+
+### Create your DNA
 
 ```powershell
+agent-dna init
+```
+
+### Validate the current document
+
+```powershell
+agent-dna validate
+```
+
+### Inspect one field
+
+```powershell
+agent-dna show --field identity.name --format json
+```
+
+### Export resolved DNA
+
+```powershell
+agent-dna export --format yaml
+agent-dna export --format json --out .\resolved-agent-dna.json
+```
+
+### Inject tool-specific artifacts
+
+```powershell
+agent-dna inject --tool codex
+agent-dna inject --tool cursor
+agent-dna inject --tool claude
+```
+
+Generated outputs:
+
+- `codex` -> `AGENTS.md`
+- `cursor` -> `.cursorrules`
+- `claude` -> `claude-system.txt`
+
+### Work with overrides
+
+```powershell
+agent-dna override pulse
+agent-dna show
+agent-dna override --clear
+```
+
+### Wrap another command with injected DNA
+
+```powershell
+agent-dna run --tool codex -- node script.js
+```
+
+### Show the full command help
+
+```powershell
+agent-dna --help
+```
+
+## Development workflow
+
+### Run the local CLI without global install
+
+```powershell
+npm run cli -- --help
 npm run cli -- init
-npm run cli -- init --out .\.agent-dna\dna.yaml
-```
-
-Validate a DNA file:
-
-```powershell
-npm run cli -- validate
 npm run cli -- validate .\examples\agent-dna.yaml
 ```
 
-Show a full document or one field:
+### Test against included fixtures
 
 ```powershell
-npm run cli -- show
-npm run cli -- show --field identity --format json
-npm run cli -- show .\examples\agent-dna.yaml
-npm run cli -- show .\examples\agent-dna.yaml --field rules --format json
-```
-
-Export a resolved document:
-
-```powershell
+npm run cli -- show .\examples\agent-dna.yaml --field identity --format json
 npm run cli -- export .\examples\agent-dna.yaml --format yaml
-npm run cli -- export .\examples\agent-dna.yaml --format json --out .\examples\resolved-agent-dna.json
-```
-
-Inject to a specific tool:
-
-```powershell
 npm run cli -- inject .\examples\agent-dna.yaml --tool codex
-npm run cli -- inject .\examples\agent-dna.yaml --tool cursor
-npm run cli -- inject .\examples\agent-dna.yaml --tool claude
-```
-
-Use a real override file:
-
-```powershell
 npm run cli -- override pulse-enterprise
-npm run cli -- show
-npm run cli -- override --clear
-npm run cli -- export .\examples\agent-dna.yaml --override .\examples\overrides\pulse-enterprise.yaml --format yaml
 ```
 
-Apply `.dnaignore` automatically by tool:
+## Package responsibilities
 
-```powershell
-npm run cli -- inject .\examples\agent-dna.yaml --tool codex
-```
+| Package | Purpose |
+|---|---|
+| [`agent-dna`](https://www.npmjs.com/package/agent-dna) | End-user CLI |
+| [`@tuwebai/core`](https://www.npmjs.com/package/@tuwebai/core) | Schema, parser, resolver, generators, adapter registry |
+| [`@tuwebai/types`](https://www.npmjs.com/package/@tuwebai/types) | Shared public types |
 
-### Compatibility aliases
+## Current product boundaries
 
-- `resolve` -> `export`
-- `export-agents` -> `inject --tool codex`
+Implemented now:
 
-## 📦 Example assets
+- local-first runtime
+- schema-driven validation
+- override layering
+- adapter-based artifact generation
+- Windows-friendly CLI flow
+- published npm packages
 
-- `examples/agent-dna.yaml`
-- `examples/overrides/pulse-enterprise.yaml`
-- `examples/.dnaignore`
+Not implemented yet:
 
-These files are enough to test the parser, adapters, CLI, and demo without creating custom fixtures. The real default runtime flow still targets `~/.agent-dna/dna.yaml`.
+- cloud sync
+- team distribution flows
+- CI action packages
+- IDE extensions
+- marketplace
+- hosted control plane
 
-## 🧭 Design principles
+## Design principles
 
-- local-first by default
-- open format over prompt hacks
-- adapters instead of tool lock-in
-- mergeable identity across contexts
-- explicit guardrails over implicit memory
-- source of truth before UI sugar
+- local-first before platform
+- standard before product surface
+- source of truth before prompt hacks
+- adapters over tool lock-in
+- explicit rules over implicit memory
+- portable context over repo-specific islands
 
-## 📍 Status
+## Links
 
-This repository is in active buildout toward the public Agent DNA spec.
+- Repository: [github.com/Juanchii-Dev/agent-dna](https://github.com/Juanchii-Dev/agent-dna)
+- CLI package: [npmjs.com/package/agent-dna](https://www.npmjs.com/package/agent-dna)
+- Core package: [npmjs.com/package/@tuwebai/core](https://www.npmjs.com/package/@tuwebai/core)
+- Types package: [npmjs.com/package/@tuwebai/types](https://www.npmjs.com/package/@tuwebai/types)
 
-It already behaves like a real toolkit, but it is still early-stage infrastructure and not yet a stable `1.0` production release.
+## Status
+
+Agent DNA is already usable as a real local toolkit, but it is still a pre-`1.0` standard in active buildout.
