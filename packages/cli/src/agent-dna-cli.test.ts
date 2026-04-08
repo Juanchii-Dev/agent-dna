@@ -51,7 +51,8 @@ describe("agent-dna-cli", () => {
   it("muestra help global sin requerir DNA", async () => {
     const exitCode = await runCli(["--help"]);
     expect(exitCode).toBe(0);
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Uso:"));
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Comandos principales"));
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("agent-dna inject --tool codex"));
   });
 
   it("falla con campo inexistente", async () => {

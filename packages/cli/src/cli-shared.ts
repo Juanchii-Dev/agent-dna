@@ -12,8 +12,42 @@ import type { AgentDnaDocument, DnaAdapterName } from "@tuwebai/core";
 
 export const SUPPORTED_FORMATS = ["yaml", "json"] as const;
 export const SUPPORTED_TOOLS = ["stdout", "codex", "cursor", "claude"] as const;
-export const USAGE =
-  "Uso: npm run cli -- <init|show|diff|override|validate|export|inject|run|resolve|export-agents> [archivo|override|comando] [--format yaml|json] [--out ruta] [--override ruta] [--tool codex|cursor|claude|stdout] [--dnaignore ruta] [--field ruta.dot] [--dna ruta]";
+export const USAGE = `uso: agent-dna <comando> [argumentos]
+
+Comandos principales
+  init [ruta]                 crea ~/.agent-dna/dna.yaml o la ruta indicada
+  show [archivo]              muestra el DNA resuelto
+  validate [archivo]          valida el DNA contra el schema
+  export [archivo]            exporta el DNA en yaml o json
+  inject [archivo]            genera o escribe artefactos por herramienta
+  run -- <comando>            ejecuta un comando con DNA inyectado
+
+Comandos de contexto
+  override <nombre|ruta>      activa un override
+  override --clear            limpia el override activo
+  diff [izq] [der]            compara DNA base y override
+  hook <powershell|bash|git>  muestra o instala hooks
+
+Compatibilidad
+  resolve [archivo]           alias de export
+  export-agents [archivo]     alias de inject --tool codex
+  help                        muestra esta ayuda
+
+Opciones
+  --format <yaml|json>        formato de salida
+  --out <ruta>                escribe el resultado en archivo
+  --tool <tool>               stdout | codex | cursor | claude
+  --field <ruta.dot>          filtra un campo del documento
+  --override <ruta>           aplica override puntual
+  --dnaignore <ruta>          usa un .dnaignore especifico
+  --help, -h                  muestra ayuda
+
+Ejemplos
+  agent-dna init
+  agent-dna show --field identity.name --format json
+  agent-dna inject --tool codex
+  agent-dna override pulse
+  agent-dna run --tool cursor -- node script.js`;
 
 export function getArg(flag: string, args: string[]) {
   const index = args.indexOf(flag);
