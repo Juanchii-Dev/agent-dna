@@ -1,0 +1,6 @@
+{
+  "name": "@agent-dna/adapter-chatgpt",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module"
+}

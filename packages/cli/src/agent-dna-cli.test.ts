@@ -148,6 +148,22 @@ describe("agent-dna-cli", () => {
     }
   });
 
+  it("inyecta personalizacion de chatgpt en el directorio actual", async () => {
+    const tempDir = await fs.mkdtemp(join(tmpdir(), "agent-dna-chatgpt-"));
+    const previousCwd = process.cwd();
+    process.chdir(tempDir);
+
+    try {
+      await runCli(["inject", fixturePath, "--tool", "chatgpt"]);
+      const written = await fs.readFile(join(tempDir, "chatgpt-personalization.md"), "utf8");
+      expect(written).toContain("# ChatGPT Personalization");
+      expect(written).toContain("## Acerca de ti");
+      expect(logSpy).toHaveBeenLastCalledWith(expect.stringContaining("chatgpt-personalization.md"));
+    } finally {
+      process.chdir(previousCwd);
+    }
+  });
+
   it("importa AGENTS y CONTEXT a archivos portables", async () => {
     const tempRepo = await fs.mkdtemp(join(tmpdir(), "agent-dna-repo-"));
     await fs.writeFile(

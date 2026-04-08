@@ -4,7 +4,7 @@ export type AgentDnaOverrideDocument = Partial<AgentDnaDocument>;
 
 export type DnaIgnoreConfig = Record<string, string[]>;
 
-export type DnaAdapterName = "stdout" | "codex" | "cursor" | "claude";
+export type DnaAdapterName = "stdout" | "codex" | "cursor" | "claude" | "chatgpt";
 
 export type DnaAdapterInput = {
   document: AgentDnaDocument;

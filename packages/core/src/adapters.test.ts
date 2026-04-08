@@ -17,6 +17,13 @@ describe("adapters", () => {
     expect(output).toContain("## Never");
   });
 
+  it("renderiza chatgpt como personalizacion persistente", () => {
+    const output = renderAdapter("chatgpt", initialDnaDocument, initialDna);
+    expect(output).toContain("# ChatGPT Personalization");
+    expect(output).toContain("## Acerca de ti");
+    expect(output).toContain("## Como quiero que respondas");
+  });
+
   it("renderiza stdout como documento canonico yaml", () => {
     expect(renderAdapter("stdout", initialDnaDocument, initialDna)).toContain('version: "1.0"');
   });

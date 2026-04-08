@@ -1,16 +1,18 @@
 import type { AgentDnaDocument, AgentDnaState, DnaAdapter, DnaAdapterName } from "./types";
+import { chatgptAdapter } from "../../adapter-chatgpt/src/index";
 import { claudeAdapter } from "../../adapter-claude/src/index";
 import { codexAdapter } from "../../adapter-codex/src/index";
 import { cursorAdapter } from "../../adapter-cursor/src/index";
 import { stdoutAdapter } from "../../adapter-stdout/src/index";
 
-export { claudeAdapter, codexAdapter, cursorAdapter, stdoutAdapter };
+export { chatgptAdapter, claudeAdapter, codexAdapter, cursorAdapter, stdoutAdapter };
 
 const registry: Record<DnaAdapterName, DnaAdapter> = {
   stdout: stdoutAdapter,
   codex: codexAdapter,
   cursor: cursorAdapter,
-  claude: claudeAdapter
+  claude: claudeAdapter,
+  chatgpt: chatgptAdapter
 };
 
 export function getAdapter(name: DnaAdapterName) {

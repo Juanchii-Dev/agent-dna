@@ -11,7 +11,7 @@ import {
 import type { AgentDnaDocument, DnaAdapterName } from "@agent-dna/core";
 
 export const SUPPORTED_FORMATS = ["yaml", "json"] as const;
-export const SUPPORTED_TOOLS = ["stdout", "codex", "cursor", "claude"] as const;
+export const SUPPORTED_TOOLS = ["stdout", "codex", "cursor", "claude", "chatgpt"] as const;
 export const USAGE = `uso: agent-dna <comando> [argumentos]
 
 Comandos principales
@@ -37,7 +37,7 @@ Compatibilidad
 Opciones
   --format <yaml|json>        formato de salida
   --out <ruta>                escribe el resultado en archivo
-  --tool <tool>               stdout | codex | cursor | claude
+  --tool <tool>               stdout | codex | cursor | claude | chatgpt
   --field <ruta.dot>          filtra un campo del documento
   --override <ruta>           aplica override puntual
   --dnaignore <ruta>          usa un .dnaignore especifico
